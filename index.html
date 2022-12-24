@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>₵REDITS: 0 | Cosmic Capital</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+        <link rel="icon" type="image/png" href="./img/cosmiccapital.png">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500&display=swap" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body id="body">
+        <script src="./scripts/script.js" type="text/javascript"></script>
+        <div id="bg"></div>
+        <div class="stars">
+            <div class="stars-back"></div>
+            <div class="stars-middle"></div>
+            <div class="stars-front"></div>
+        </div>
+        <div id="navbar">
+            <a href="./index.html"><img id="logo" src="./img/cosmiccapital.png" alt="Cosmic Capital logo"></a> <!--change-->
+            <p class="navbartxt">₵REDITS:<var id="credits" class="navbarvartxt">0</var></p>
+            <div class="navbardivider"></div>
+            <p class="navbartxt">Crystalline Shards:<var id="crystallineshards" class="navbarvartxt">0</var></p>
+            <div class="navbardivider"></div>
+            <p class="navbartxt">Wormhole Tokens:<var id="wormholetokens" class="navbarvartxt">0</var></p>
+            <div class="navbardivider"></div>
+            <p class="navbartxt">Cosmic Clicks Version <var class="navbarvartxt">1.0.0</var></p>
+            <div class="navbardivider"></div>
+        </div>
+        <div></div>
+        <div id="spaceshipwrap">
+            <p class="txt" id="clickme">Click me!</p>
+            <img draggable="false" id="spaceship" src="./img/Main-Ship/mainshipbasefullhp2.png">
+        </div>
+        <div class="stats">
+            <p class="statstxt" id="itemdescription">Cosmic Clicks are great!</p>
+            <p class="statstxt2" id="itemproducingamt">Each Cosmic Click Produces <var id="cccreditsval" class="buymenuvartxt">0.25</var> ₵REDITS per second</p>
+            <p class="statstxt2" id="itemproducingpercent"><var class="buymenuvartxt cosmicclicksamt">0</var> Cosmic Clicks producing <var id="cccreditstotal" class="buymenuvartxt">0</var> ₵REDITS per second, which is <var id="ccpercentoftotal"  class="buymenuvartxt"></var>% of total ₵REDITS production</p>
+            <p class="statstxt2" id="itemproducingtotal">Total ₵REDITS produced by Cosmic Clicks: <var id="cccredstotalproduced" class="buymenuvartxt">0</var></p>
+          </div>
+        <div id="buymenuwrap">
+            <div class="buymenuitem" data-name="Cosmic Click" data-name2="Cosmic Clicks" data-varval="CosmicClicksValue" data-varamt="CosmicClicks" data-vartotal="CosmicClicksTotal" data-vartotalproduction="CosmicClicksCredsProduced" data-description="CosmicClicksDescription" data-price="CosmicClicksPrice" data-pricemult="CosmicClicksPriceMult">
+                <div class="buymenuiconwrap cosmicclicksimgwrap ">
+                    <img draggable="false" id="CosmicClicksPrice" src="./img/items/CosmicClick.png" class="buymenuimg cosmicclicks">
+                </div>
+                <p class="buymenutxt">Cosmic Clicks: <var class="buymenuvartxt cosmicclicksamt">0</var></p>
+                <p class="buymenutxt2">Cost: <var id="cosmicclicksprice" class="buymenuvartxt">10</var> ₵REDITS</p>
+            </div> <!-- end of cosmic clicks-->
+            <div class="buymenuitem" data-name="Cosmic Oven" data-name2="Cosmic Ovens" data-varval="CosmicOvensValue" data-varamt="CosmicOvens" data-vartotal="CosmicOvensTotal" data-vartotalproduction="CosmicOvensCredsProduced" data-description="CosmicOvensDescription" data-price="CosmicOvensPrice" data-pricemult="CosmicOvensPriceMult">
+                <div class="buymenuiconwrap cosmicovensimgwrap ">
+                    <img draggable="false" id="CosmicOvensPrice" src="./img/items/CosmicOven.png" class="buymenuimg cosmicovens">
+                </div>
+                <p class="buymenutxt">Cosmic Ovens: <var class="buymenuvartxt cosmicovenamt">0</var></p>
+                <p class="buymenutxt2">Cost: <var id="cosmicovenprice" class="buymenuvartxt">100</var> ₵REDITS</p>
+            </div><!-- end of cosmic oven-->
+            <div class="buymenuitem" data-name="Interstellar Mixer" data-name2="Interstellar Mixers" data-varval="InterstellarMixersValue" data-varamt="InterstellarMixers" data-vartotal="InterstellarMixersTotal" data-vartotalproduction="InterstellarMixersCredsProduced" data-description="InterstellarMixersDescription" data-price="InterstellerMixersPrice" data-pricemult="InterstellarMixersPriceMult">
+                <div class="buymenuiconwrap interstellarmixersimgwrap ">
+                    <img draggable="false" id="InterstellarMixersPrice" src="./img/items/interstellarMixer.png" class="buymenuimg interstellarmixer">
+                </div>
+                <p class="buymenutxt">Interstellar Mixers: <var class="buymenuvartxt interstellarmixersamt">0</var></p>
+                <p class="buymenutxt2">Cost: <var id="interstellarmixersprice" class="buymenuvartxt">1500</var> ₵REDITS</p>
+            </div> <!--end of interstellar mixer-->
+            <div class="buymenuitem">
+
+            </div>
+            <div class="buymenuitem">
+
+            </div>
+            <div class="buymenuitem">
+
+            </div>
+            <div class="buymenuitem">
+
+            </div>
+            <div class="buymenuitem">
+
+            </div>
+            <div class="buymenuitem">
+
+            </div>
+            <div class="buymenuitem">
+
+            </div>
+        </div>
+    </body>
+</html> 
