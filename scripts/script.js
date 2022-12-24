@@ -255,7 +255,7 @@ function checkBuyableBorder(){
        }
     }
     //cosmic ovens
-    if (CosmicOvens < 1 && Credits < (CosmicOvensPrice / 2))
+    if (CosmicOvens < 1 && Credits < (CosmicOvensTotalCostMultiplied / 2))
     {
         $("#buymenu2").addClass("hidebuymenuitem")
         $("#buymenu2").children("p").html("???")
@@ -272,7 +272,7 @@ function checkBuyableBorder(){
        }
     } 
     //interstellarmixers
-    if (InterstellarMixers < 1 && Credits < (InterstellarMixersPrice / 2))
+    if (InterstellarMixers < 1 && Credits < (InterstellarMixersTotalCostMultiplied / 2))
     {
         $("#buymenu3").addClass("hidebuymenuitem")
         $("#buymenu3").children("p").html("???")
@@ -289,7 +289,7 @@ function checkBuyableBorder(){
        }
     }
     //asteroid miners
-    if (AsteroidMiners < 1 && Credits < (AsteroidMinersPrice / 2))
+    if (AsteroidMiners < 1 && Credits < (AsteroidMinersTotalCostMultiplied / 2))
     {
         $("#buymenu4").addClass("hidebuymenuitem")
         $("#buymenu4").children("p").html("???")
