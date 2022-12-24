@@ -44,7 +44,7 @@ $(document).ready(function(){
     // Set the left property of the spaceshipwrap element based on the width of the buymenuwrap element
     document.getElementById("spaceshipwrap").style.left = `calc(63% - ${buymenuwrapWidth}px)`;
 
-    localStorage.clear(); //gamesave clearing
+    //localStorage.clear(); //gamesave clearing
     if(localStorage.getItem("gameSave") != null || localStorage.getItem("gameSave") != undefined){
         gameSave = JSON.parse(localStorage.getItem("gameSave"))
         Credits = gameSave.credits;
@@ -224,7 +224,7 @@ function checkBuyableBorder(){
     } else if ($("#buymenu2").hasClass("hidebuymenuitem")){
         $("#buymenu2").removeClass("hidebuymenuitem")
         $("#buymenu2").children(".buymenutxt").html(`Cosmic Ovens: <var class="buymenuvartxt cosmicovenamt">0</var>`)
-        $("#buymenu2").children(".buymenutxt2").html(`Cost: <var id="cosmicovensprice" class="buymenuvartxt">100</var> ₵REDITS`)
+        $("#buymenu2").children(".buymenutxt2").html(`Cost: <var id="cosmicovensprice" class="buymenuvartxt">${CosmicOvensTotalCostMultiplied}</var> ₵REDITS`)
     }
     if (Credits >= CosmicOvensTotalCostMultiplied){
         $(".cosmicovensimgwrap").css("border-color", "rgb(166, 32, 255)")
@@ -241,7 +241,7 @@ function checkBuyableBorder(){
     } else if ($("#buymenu3").hasClass("hidebuymenuitem")){
         $("#buymenu3").removeClass("hidebuymenuitem")
         $("#buymenu3").children(".buymenutxt").html(`Interstellar Mixers: <var class="buymenuvartxt interstellarmixersamt">0</var>`)
-        $("#buymenu3").children(".buymenutxt2").html(`Cost: <var id="interstellarmixersprice" class="buymenuvartxt">1500</var> ₵REDITS`)
+        $("#buymenu3").children(".buymenutxt2").html(`Cost: <var id="interstellarmixersprice" class="buymenuvartxt">${InterstellarMixersTotalCostMultiplied}</var> ₵REDITS`)
     }
     if (Credits >= InterstellarMixersTotalCostMultiplied){
         $(".interstellarmixersimgwrap").css("border-color", "rgb(166, 32, 255)")
