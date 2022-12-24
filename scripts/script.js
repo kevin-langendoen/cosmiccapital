@@ -45,6 +45,28 @@ $(document).ready(function(){
     document.getElementById("spaceshipwrap").style.left = `calc(63% - ${buymenuwrapWidth}px)`;
 
     //localStorage.clear(); //gamesave clearing
+    loadSaveData();
+
+    if(Credits > 4){ // dont display clickme text if user already played
+        $("#clickme").css("display", "none");
+        $("#clickme").remove();
+    }
+
+    if (/Mobi|Android/i.test(navigator.userAgent)) { //if on mobile change text
+        $("#clickme").html("Tap me!");
+    }
+
+    clicksFunctions(); //initializes hover effects and onclick functions
+    oneSecondLoop(); //starts 1 second loop
+    tenthSecondLoop(); // starts .1 second loop
+    fifteenSecondLoop(); // 15 second loop for automatic game saving
+
+    //make into button toggle
+    updateTotalCost();
+
+}); //end doc onready
+
+function loadSaveData(){
     if(localStorage.getItem("gameSave") != null || localStorage.getItem("gameSave") != undefined){
         gameSave = JSON.parse(localStorage.getItem("gameSave"))
         Credits = gameSave.credits;
@@ -78,25 +100,7 @@ $(document).ready(function(){
         InterstellarMixersTotal = InterstellarMixers * InterstellarMixersValue;
         InterstellarMixersPriceMult = gameSave.interstellarmixerspricemult;
     }
-
-    if(Credits > 4){ // dont display clickme text if user already played
-        $("#clickme").css("display", "none");
-        $("#clickme").remove();
-    }
-
-    if (/Mobi|Android/i.test(navigator.userAgent)) { //if on mobile change text
-        $("#clickme").html("Tap me!");
-    }
-
-    clicksFunctions(); //initializes hover effects and onclick functions
-    oneSecondLoop(); //starts 1 second loop
-    tenthSecondLoop(); // starts .1 second loop
-    fifteenSecondLoop(); // 15 second loop for automatic game saving
-
-    //make into button toggle
-    updateTotalCost();
-
-}); //end doc onready
+}
 
 function saveGameData(){
     const gameSave = {
