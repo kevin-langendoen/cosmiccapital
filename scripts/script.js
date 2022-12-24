@@ -47,7 +47,7 @@ var AsteroidMinersTotalCostMultiplied = 0;
 
 
 
-localStorage.clear(); //gamesave clearing for development purposes
+//localStorage.clear(); //gamesave clearing for development purposes
 
 $(document).ready(function(){
     // Get the width of the buymenuwrap element
