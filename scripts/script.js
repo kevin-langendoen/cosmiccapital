@@ -30,13 +30,24 @@ var CosmicOvensTotalCostMultiplied = 0;
 var InterstellarMixersDescription = "A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation";
 var InterstellarMixersCredsProduced = 0;
 var InterstellarMixers = 0;
-var InterstellarMixersValue = 10;
+var InterstellarMixersValue = 10; // amt of creds / sec
 var InterstellarMixersPrice = 1000;
 var InterstellarMixersTotal = InterstellarMixers * InterstellarMixersValue;
 var InterstellarMixersPriceMult = 1.25;
 var InterstellarMixersTotalCostMultiplied = 0;
 
+var AsteroidMinersDescription = "An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production";
+var AsteroidMinersCredsProduced = 0;
+var AsteroidMiners = 0;
+var AsteroidMinersValue = 100;
+var AsteroidMinersPrice = 4500;
+var AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
+var AsteroidMinersPriceMult = 1.275;
+var AsteroidMinersTotalCostMultiplied = 0;
 
+
+
+//localStorage.clear(); //gamesave clearing for development purposes
 
 $(document).ready(function(){
     // Get the width of the buymenuwrap element
@@ -44,8 +55,7 @@ $(document).ready(function(){
     // Set the left property of the spaceshipwrap element based on the width of the buymenuwrap element
     document.getElementById("spaceshipwrap").style.left = `calc(63% - ${buymenuwrapWidth}px)`;
 
-    //localStorage.clear(); //gamesave clearing
-    loadSaveData();
+    loadSaveData(); // loads game save if any
 
     if(Credits > 4){ // dont display clickme text if user already played
         $("#clickme").css("display", "none");
@@ -72,11 +82,11 @@ function loadSaveData(){
         Credits = gameSave.credits;
         CreditsPerSecond = gameSave.creditspersecond;
         totalCostReduction = gameSave.totalcostreduction;
-        globalProductionModifier = gameSave.globalproductionmodifier; //creds and modifiers save
+        globalProductionModifier = gameSave.globalproductionmodifier; //creds and modifiers load
 
-        ClickValue = gameSave.clickvalue; //user click value save
+        ClickValue = gameSave.clickvalue; //user click value load
 
-        //cosmic clicks saving
+        //cosmic clicks loading
         CosmicClicksCredsProduced = gameSave.cosmicclickscredsproduced;
         CosmicClicks =  gameSave.cosmicclicks;
         CosmicClicksValue = gameSave.cosmicclicksvalue;
@@ -84,7 +94,7 @@ function loadSaveData(){
         CosmicClicksTotal = CosmicClicks * CosmicClicksValue;
         CosmicClicksPriceMult = gameSave.cosmicclickspricemult;
 
-        //cosmic oven saving
+        //cosmic oven loading
         CosmicOvensCredsProduced = gameSave.cosmicovenscredsproduced;
         CosmicOvens = gameSave.cosmicovens;
         CosmicOvensValue = gameSave.cosmicovensvalue;
@@ -92,13 +102,22 @@ function loadSaveData(){
         CosmicOvensTotal = CosmicOvens * CosmicOvensValue;
         CosmicOvensPriceMult = gameSave.cosmicovenspricemult;
 
-        //interstellar mixer saving
+        //interstellar mixer loading
         InterstellarMixersCredsProduced = gameSave.interstellarmixerscredsproduced;
         InterstellarMixers = gameSave.interstellarmixers;
         InterstellarMixersValue = gameSave.interstellarmixersvalue;
         InterstellarMixersPrice = gameSave.interstellarmixersprice;
         InterstellarMixersTotal = InterstellarMixers * InterstellarMixersValue;
         InterstellarMixersPriceMult = gameSave.interstellarmixerspricemult;
+
+        //asteroid miners loading
+        AsteroidMinersCredsProduced = gameSave.asteroidminerscredsproduced ??= 0;
+        AsteroidMiners = gameSave.asteroidminers ??= 0;
+        AsteroidMinersValue = gameSave.asteroidminersvalue ??= 100;
+        AsteroidMinersPrice = gameSave.asteroidminersprice ??= 4500;
+        AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
+        AsteroidMinersPriceMult = gameSave.asteroidminerspricemult ??= 1.275;
+
     }
 }
 
@@ -131,6 +150,13 @@ function saveGameData(){
         interstellarmixersvalue : InterstellarMixersValue,
         interstellarmixersprice : InterstellarMixersPrice,
         interstellarmixerspricemult : InterstellarMixersPriceMult,
+
+        //asteroid miner saving
+        asteroidminerscredsproduced : AsteroidMinersCredsProduced, 
+        asteroidminers : AsteroidMiners,
+        asteroidminersvalue : AsteroidMinersValue,
+        asteroidminersprice : AsteroidMinersPrice,
+        asteroidminerspricemult: AsteroidMinersPriceMult,
     }
     localStorage.setItem("gameSave",JSON.stringify(gameSave));
 };
@@ -146,6 +172,7 @@ function updateCreditsPerSecond(){
     CreditsPerSecond += CosmicClicksTotal;
     CreditsPerSecond += CosmicOvensTotal;
     CreditsPerSecond += InterstellarMixersTotal;
+    CreditsPerSecond += AsteroidMinersTotal;
 }
 
 var calc = 0; //calc variable
@@ -178,6 +205,13 @@ function addCreds(){
     calc = Math.round(calc)
     Credits += calc;
     InterstellarMixersCredsProduced += calc;
+
+    // asteroid miners
+    calc = 0;
+    calc = AsteroidMinersTotal / 10;
+    calc = Math.round(calc)
+    Credits += calc;
+    AsteroidMinersCredsProduced += calc;
 
     // new item
     calc = 0;
@@ -213,7 +247,7 @@ function fifteenSecondLoop(){
 }
 
 function checkBuyableBorder(){
-    if (Credits >= CosmicClicksTotalCostMultiplied ){
+    if (Credits >= CosmicClicksPrice ){
         $(".cosmicclicksimgwrap").css("border-color", "rgb(166, 32, 255)")
     } else{
        if($(".cosmicclicksimgwrap").css("border-color") != "rgb(56, 0, 94)"){
@@ -227,10 +261,10 @@ function checkBuyableBorder(){
         $("#buymenu2").children("p").html("???")
     } else if ($("#buymenu2").hasClass("hidebuymenuitem")){
         $("#buymenu2").removeClass("hidebuymenuitem")
-        $("#buymenu2").children(".buymenutxt").html(`Cosmic Ovens: <var class="buymenuvartxt cosmicovenamt">0</var>`)
+        $("#buymenu2").children(".buymenutxt").html(`Cosmic Ovens: <var class="buymenuvartxt cosmicovenamt">${CosmicOvens}</var>`)
         $("#buymenu2").children(".buymenutxt2").html(`Cost: <var id="cosmicovensprice" class="buymenuvartxt">${CosmicOvensTotalCostMultiplied}</var> ₵REDITS`)
     }
-    if (Credits >= CosmicOvensTotalCostMultiplied){
+    if (Credits >= CosmicOvensPrice){
         $(".cosmicovensimgwrap").css("border-color", "rgb(166, 32, 255)")
     }else{
         if($(".cosmicovensimgwrap").css("border-color") != "rgb(56, 0, 94)"){
@@ -244,14 +278,31 @@ function checkBuyableBorder(){
         $("#buymenu3").children("p").html("???")
     } else if ($("#buymenu3").hasClass("hidebuymenuitem")){
         $("#buymenu3").removeClass("hidebuymenuitem")
-        $("#buymenu3").children(".buymenutxt").html(`Interstellar Mixers: <var class="buymenuvartxt interstellarmixersamt">0</var>`)
+        $("#buymenu3").children(".buymenutxt").html(`Interstellar Mixers: <var class="buymenuvartxt interstellarmixersamt">${InterstellarMixers}</var>`)
         $("#buymenu3").children(".buymenutxt2").html(`Cost: <var id="interstellarmixersprice" class="buymenuvartxt">${InterstellarMixersTotalCostMultiplied}</var> ₵REDITS`)
     }
-    if (Credits >= InterstellarMixersTotalCostMultiplied){
+    if (Credits >= InterstellarMixersPrice){
         $(".interstellarmixersimgwrap").css("border-color", "rgb(166, 32, 255)")
     }else{
         if($(".interstellarmixersimgwrap").css("border-color") != "rgb(56, 0, 94)"){
             $(".interstellarmixersimgwrap").css("border-color", "rgb(56, 0, 94)")
+       }
+    }
+    //asteroid miners
+    if (AsteroidMiners < 1 && Credits < (AsteroidMinersPrice / 2))
+    {
+        $("#buymenu4").addClass("hidebuymenuitem")
+        $("#buymenu4").children("p").html("???")
+    } else if ($("#buymenu4").hasClass("hidebuymenuitem")){
+        $("#buymenu4").removeClass("hidebuymenuitem")
+        $("#buymenu4").children(".buymenutxt").html(`Asteroid Miners: <var class="buymenuvartxt asteroidminersamt">${AsteroidMiners}</var>`)
+        $("#buymenu4").children(".buymenutxt2").html(`Cost: <var id="asteroidminersprice" class="buymenuvartxt">${AsteroidMinersTotalCostMultiplied}</var> ₵REDITS`)
+    }
+    if (Credits >= AsteroidMinersPrice){
+        $(".asteroidminersimgwrap").css("border-color", "rgb(166, 32, 255)")
+    }else{
+        if($(".asteroidminersimgwrap").css("border-color") != "rgb(56, 0, 94)"){
+            $(".asteroidminersimgwrap").css("border-color", "rgb(56, 0, 94)")
        }
     }
 }
@@ -279,7 +330,6 @@ function updateTotalCost(name){
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             CosmicClicksTotalCostMultiplied = totalcost;
-            CosmicClicksPrice = price;
             $("#cosmicclicksprice").html(CosmicClicksTotalCostMultiplied);
             break;
         
@@ -290,11 +340,9 @@ function updateTotalCost(name){
                 price = ((price * CosmicOvensPriceMult) / 100) * totalCostReduction;
                 totalcost += price;
             }
-
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             CosmicOvensTotalCostMultiplied = totalcost;
-            CosmicOvensPrice = price;
             $("#cosmicovensprice").html(CosmicOvensTotalCostMultiplied);
             break;
 
@@ -305,12 +353,23 @@ function updateTotalCost(name){
                 price = ((price * InterstellarMixersPriceMult) / 100) * totalCostReduction;
                 totalcost += price;
             }
-
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             InterstellarMixersTotalCostMultiplied = totalcost;
-            InterstellarMixersPrice = price;
             $("#interstellarmixersprice").html(InterstellarMixersTotalCostMultiplied);
+            break;
+
+        case "asteroidminers":
+            //asteroid miner
+            price = AsteroidMinersPrice;
+            for (let i = 0; i < purchaseAmount; i++){
+                price = ((price * AsteroidMinersPriceMult) / 100) * totalCostReduction;
+                totalcost += price;
+            }
+            totalcost = Math.round(totalcost);
+            price = Math.round(price);
+            AsteroidMinersTotalCostMultiplied = totalcost;
+            $("#asteroidminersprice").html(AsteroidMinersTotalCostMultiplied);
             break;
 
         default:
@@ -323,8 +382,8 @@ function updateTotalCost(name){
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             CosmicClicksTotalCostMultiplied = totalcost;
-            CosmicClicksPrice = price;
             $("#cosmicclicksprice").html(CosmicClicksTotalCostMultiplied);
+            $(".cosmicclicksamt").html(CosmicClicks)
 
             //cosmic oven
             price = CosmicOvensPrice;
@@ -333,12 +392,11 @@ function updateTotalCost(name){
                 price = ((price * CosmicOvensPriceMult) / 100) * totalCostReduction;
                 totalcost += price;
             }
-
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             CosmicOvensTotalCostMultiplied = totalcost;
-            CosmicOvensPrice = price;
             $("#cosmicovensprice").html(CosmicOvensTotalCostMultiplied);
+            $(".cosmicovenamt").html(CosmicOvens)
 
             //interstellar mixer
             price = InterstellarMixersPrice;
@@ -347,12 +405,24 @@ function updateTotalCost(name){
                 price = ((price * InterstellarMixersPriceMult) / 100) * totalCostReduction;
                 totalcost += price;
             }
-
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             InterstellarMixersTotalCostMultiplied = totalcost;
-            InterstellarMixersPrice = price;
             $("#interstellarmixersprice").html(InterstellarMixersTotalCostMultiplied);
+            $(".interstellarmixersamt").html(InterstellarMixers)
+
+            //asteroid miner
+            price = AsteroidMinersPrice;
+            totalcost = 0; //important
+            for (let i = 0; i < purchaseAmount; i++){
+                price = ((price * AsteroidMinersPriceMult) / 100) * totalCostReduction;
+                totalcost += price;
+            }
+            totalcost = Math.round(totalcost);
+            price = Math.round(price);
+            AsteroidMinersTotalCostMultiplied = totalcost;
+            $("#asteroidminersprice").html(AsteroidMinersTotalCostMultiplied);
+            $(".asteroidminersamt").html(AsteroidMiners)
     }
     //interstellarmixer
 
@@ -392,6 +462,11 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             Credits -= CosmicClicksTotalCostMultiplied;
             CosmicClicks += purchaseAmount;
             CosmicClicksTotal = ((CosmicClicks * CosmicClicksValue) / 100) * globalProductionModifier;
+            let newpriceval = CosmicClicksPrice;
+            for (let i =0;i < purchaseAmount;i++){
+                newpriceval = ((newpriceval * CosmicClicksPriceMult)/100) * globalProductionModifier;
+            }
+            CosmicClicksPrice =  newpriceval;
             updateCredsDisplay();
             updateCreditsPerSecond();
             $(".cosmicclicksamt").html(CosmicClicks)
@@ -404,6 +479,11 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             Credits -= CosmicOvensTotalCostMultiplied;
             CosmicOvens += purchaseAmount;
             CosmicOvensTotal = ((CosmicOvens * CosmicOvensValue) / 100) * globalProductionModifier;
+            let newpriceval = CosmicOvensPrice;
+            for (let i =0;i < purchaseAmount;i++){
+                newpriceval = ((newpriceval * CosmicOvensPriceMult)/100) * globalProductionModifier;
+            }
+            CosmicOvensPrice =  newpriceval;
             updateCredsDisplay();
             updateCreditsPerSecond();
             $(".cosmicovenamt").html(CosmicOvens)
@@ -416,10 +496,32 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             Credits -= InterstellarMixersTotalCostMultiplied;
             InterstellarMixers += purchaseAmount;
             InterstellarMixersTotal = ((InterstellarMixers * InterstellarMixersValue) / 100) * globalProductionModifier;
+            let newpriceval = InterstellarMixersPrice;
+            for (let i =0;i < purchaseAmount;i++){
+                newpriceval = ((newpriceval * InterstellarMixersPriceMult)/100) * globalProductionModifier;
+            }
+            InterstellarMixersPrice =  newpriceval;
             updateCredsDisplay();
             updateCreditsPerSecond();
             $(".interstellarmixersamt").html(InterstellarMixers)
             updateTotalCost("interstellarmixers")
+        }
+    }) // end of on interstellar mixer purchase
+
+    $('.asteroidminersimgwrap').click(function(ev){ //click on spaceship
+        if(Credits >= AsteroidMinersTotalCostMultiplied){
+            Credits -= AsteroidMinersTotalCostMultiplied;
+            AsteroidMiners += purchaseAmount;
+            AsteroidMinersTotal = ((AsteroidMiners * AsteroidMinersValue) / 100) * globalProductionModifier;
+            let newpriceval = AsteroidMinersPrice;
+            for (let i =0;i < purchaseAmount;i++){
+                newpriceval = ((newpriceval * AsteroidMinersPriceMult)/100) * globalProductionModifier;
+            }
+            AsteroidMinersPrice =  newpriceval;
+            updateCredsDisplay();
+            updateCreditsPerSecond();
+            $(".asteroidminersamt").html(AsteroidMiners)
+            updateTotalCost("asteroidminers")
         }
     }) // end of on cosmic oven purchase
 
