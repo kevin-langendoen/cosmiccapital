@@ -217,7 +217,7 @@
 }
 .buymenuimg2{
   position:relative;
-  width:90% !important;
+  width:100% !important;
   left:50%;
   top:50%;
 
@@ -260,6 +260,7 @@
 }
 
 .statstxt{
+  display:'block';
   font-family: 'Heebo', sans-serif;
   font-size:100%;
   font-style:normal;
@@ -294,6 +295,9 @@
 
   line-height: 1.5; /* increases the line width by 50% */
   
+}
+.hidestatstxt{
+  display:'none' !important;
 }
 .stats {
   display: none;
