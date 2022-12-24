@@ -15,7 +15,7 @@ var CosmicClicks = 0; //amount of cosmic clicks owned
 var CosmicClicksValue = 0.25; //amount of credits pre second per each cosmic click
 var CosmicClicksPrice = 10; // credit price of cosmic click
 var CosmicClicksTotal = CosmicClicks * CosmicClicksValue; //how many credits cosmic clicks are producing in total
-var CosmicClicksPriceMult = 1.20; // price goes up by 120% each purchase
+var CosmicClicksPriceMult = 1.175; // price goes up by 120% each purchase
 var CosmicClicksTotalCostMultiplied = 0;
 
 var CosmicOvensDescription = "Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster";
@@ -24,7 +24,7 @@ var CosmicOvens = 0;
 var CosmicOvensValue = 1;
 var CosmicOvensPrice = 100;
 var CosmicOvensTotal = CosmicOvens * CosmicOvensValue;
-var CosmicOvensPriceMult = 1.225;
+var CosmicOvensPriceMult = 1.2;
 var CosmicOvensTotalCostMultiplied = 0;
 
 var InterstellarMixersDescription = "A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation";

@@ -81,10 +81,3 @@ Wormhole Conduit - A powerful device that uses wormholes to transport cookies in
 Asteroid Belt Mining Fleet - A fleet of advanced mining ships that extract resources from asteroids in the asteroid belt to be used in cookie production.
 
 Nova Cannon - A powerful weapon that harnesses the energy of a nova explosion to boost cookie production.
-
-before u unlock it , the text that shows explaining what the item does should only have an explanation that you will unlock this item once you reached a certain level
-and show the item's explanation once you unlock it - paradox
-
-achievement : cosmic paradox
-
-offline production
