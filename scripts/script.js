@@ -15,7 +15,7 @@ var CosmicClicks = 0; //amount of cosmic clicks owned
 var CosmicClicksValue = 0.25; //amount of credits pre second per each cosmic click
 var CosmicClicksPrice = 10; // credit price of cosmic click
 var CosmicClicksTotal = CosmicClicks * CosmicClicksValue; //how many credits cosmic clicks are producing in total
-var CosmicClicksPriceMult = 1.175; // price goes up by 120% each purchase
+var CosmicClicksPriceMult = 1.0; // price goes up by 120% each purchase
 var CosmicClicksTotalCostMultiplied = 0;
 
 var CosmicOvensDescription = "Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster";
@@ -24,16 +24,16 @@ var CosmicOvens = 0;
 var CosmicOvensValue = 1;
 var CosmicOvensPrice = 100;
 var CosmicOvensTotal = CosmicOvens * CosmicOvensValue;
-var CosmicOvensPriceMult = 1.2;
+var CosmicOvensPriceMult = 1.151;
 var CosmicOvensTotalCostMultiplied = 0;
 
 var InterstellarMixersDescription = "A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation";
 var InterstellarMixersCredsProduced = 0;
 var InterstellarMixers = 0;
 var InterstellarMixersValue = 10; // amt of creds / sec
-var InterstellarMixersPrice = 1000;
+var InterstellarMixersPrice = 1100;
 var InterstellarMixersTotal = InterstellarMixers * InterstellarMixersValue;
-var InterstellarMixersPriceMult = 1.25;
+var InterstellarMixersPriceMult = 1.151;
 var InterstellarMixersTotalCostMultiplied = 0;
 
 var AsteroidMinersDescription = "An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production";
@@ -42,10 +42,8 @@ var AsteroidMiners = 0;
 var AsteroidMinersValue = 100;
 var AsteroidMinersPrice = 4500;
 var AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
-var AsteroidMinersPriceMult = 1.275;
+var AsteroidMinersPriceMult = 1.151;
 var AsteroidMinersTotalCostMultiplied = 0;
-
-
 
 //localStorage.clear(); //gamesave clearing for development purposes
 
@@ -116,7 +114,7 @@ function loadSaveData(){
         AsteroidMinersValue = gameSave.asteroidminersvalue ??= 100;
         AsteroidMinersPrice = gameSave.asteroidminersprice ??= 4500;
         AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
-        AsteroidMinersPriceMult = gameSave.asteroidminerspricemult ??= 1.275;
+        AsteroidMinersPriceMult = gameSave.asteroidminerspricemult ??= 1.151;
 
     }
 }
@@ -162,8 +160,8 @@ function saveGameData(){
 };
 
 function updateCredsDisplay(){ //updates text
-    $("#credits").html(Credits);
-    document.title = `₵REDITS: ${Credits} | Cosmic Capital`;
+    $("#credits").html(Credits.toLocaleString());
+    document.title = `₵REDITS: ${Credits.toLocaleString()} | Cosmic Capital`;
 }
 
 function updateCreditsPerSecond(){
@@ -262,7 +260,7 @@ function checkBuyableBorder(){
     } else if ($("#buymenu2").hasClass("hidebuymenuitem")){
         $("#buymenu2").removeClass("hidebuymenuitem")
         $("#buymenu2").children(".buymenutxt").html(`Cosmic Ovens: <var class="buymenuvartxt cosmicovenamt">${CosmicOvens}</var>`)
-        $("#buymenu2").children(".buymenutxt2").html(`Cost: <var id="cosmicovensprice" class="buymenuvartxt">${CosmicOvensTotalCostMultiplied}</var> ₵REDITS`)
+        $("#buymenu2").children(".buymenutxt2").html(`Cost: <var id="cosmicovensprice" class="buymenuvartxt">${CosmicOvensTotalCostMultiplied.toLocaleString()}</var> ₵REDITS`)
     }
     if (Credits >= CosmicOvensTotalCostMultiplied){
         $(".cosmicovensimgwrap").css("border-color", "rgb(166, 32, 255)")
@@ -279,7 +277,7 @@ function checkBuyableBorder(){
     } else if ($("#buymenu3").hasClass("hidebuymenuitem")){
         $("#buymenu3").removeClass("hidebuymenuitem")
         $("#buymenu3").children(".buymenutxt").html(`Interstellar Mixers: <var class="buymenuvartxt interstellarmixersamt">${InterstellarMixers}</var>`)
-        $("#buymenu3").children(".buymenutxt2").html(`Cost: <var id="interstellarmixersprice" class="buymenuvartxt">${InterstellarMixersTotalCostMultiplied}</var> ₵REDITS`)
+        $("#buymenu3").children(".buymenutxt2").html(`Cost: <var id="interstellarmixersprice" class="buymenuvartxt">${InterstellarMixersTotalCostMultiplied.toLocaleString()}</var> ₵REDITS`)
     }
     if (Credits >= InterstellarMixersTotalCostMultiplied){
         $(".interstellarmixersimgwrap").css("border-color", "rgb(166, 32, 255)")
@@ -296,7 +294,7 @@ function checkBuyableBorder(){
     } else if ($("#buymenu4").hasClass("hidebuymenuitem")){
         $("#buymenu4").removeClass("hidebuymenuitem")
         $("#buymenu4").children(".buymenutxt").html(`Asteroid Miners: <var class="buymenuvartxt asteroidminersamt">${AsteroidMiners}</var>`)
-        $("#buymenu4").children(".buymenutxt2").html(`Cost: <var id="asteroidminersprice" class="buymenuvartxt">${AsteroidMinersTotalCostMultiplied}</var> ₵REDITS`)
+        $("#buymenu4").children(".buymenutxt2").html(`Cost: <var id="asteroidminersprice" class="buymenuvartxt">${AsteroidMinersTotalCostMultiplied.toLocaleString()}</var> ₵REDITS`)
     }
     if (Credits >= AsteroidMinersTotalCostMultiplied){
         $(".asteroidminersimgwrap").css("border-color", "rgb(166, 32, 255)")
@@ -330,7 +328,7 @@ function updateTotalCost(name){
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             CosmicClicksTotalCostMultiplied = totalcost;
-            $("#cosmicclicksprice").html(CosmicClicksTotalCostMultiplied);
+            $("#cosmicclicksprice").html(CosmicClicksTotalCostMultiplied.toLocaleString());
             break;
         
         case "cosmicovens":
@@ -343,7 +341,7 @@ function updateTotalCost(name){
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             CosmicOvensTotalCostMultiplied = totalcost;
-            $("#cosmicovensprice").html(CosmicOvensTotalCostMultiplied);
+            $("#cosmicovensprice").html(CosmicOvensTotalCostMultiplied.toLocaleString());
             break;
 
         case "interstellarmixers":
@@ -356,7 +354,7 @@ function updateTotalCost(name){
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             InterstellarMixersTotalCostMultiplied = totalcost;
-            $("#interstellarmixersprice").html(InterstellarMixersTotalCostMultiplied);
+            $("#interstellarmixersprice").html(InterstellarMixersTotalCostMultiplied.toLocaleString());
             break;
 
         case "asteroidminers":
@@ -369,7 +367,7 @@ function updateTotalCost(name){
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             AsteroidMinersTotalCostMultiplied = totalcost;
-            $("#asteroidminersprice").html(AsteroidMinersTotalCostMultiplied);
+            $("#asteroidminersprice").html(AsteroidMinersTotalCostMultiplied.toLocaleString());
             break;
 
         default:
@@ -382,7 +380,7 @@ function updateTotalCost(name){
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             CosmicClicksTotalCostMultiplied = totalcost;
-            $("#cosmicclicksprice").html(CosmicClicksTotalCostMultiplied);
+            $("#cosmicclicksprice").html(CosmicClicksTotalCostMultiplied.toLocaleString());
             $(".cosmicclicksamt").html(CosmicClicks)
 
             //cosmic oven
@@ -395,7 +393,7 @@ function updateTotalCost(name){
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             CosmicOvensTotalCostMultiplied = totalcost;
-            $("#cosmicovensprice").html(CosmicOvensTotalCostMultiplied);
+            $("#cosmicovensprice").html(CosmicOvensTotalCostMultiplied.toLocaleString());
             $(".cosmicovenamt").html(CosmicOvens)
 
             //interstellar mixer
@@ -408,7 +406,7 @@ function updateTotalCost(name){
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             InterstellarMixersTotalCostMultiplied = totalcost;
-            $("#interstellarmixersprice").html(InterstellarMixersTotalCostMultiplied);
+            $("#interstellarmixersprice").html(InterstellarMixersTotalCostMultiplied.toLocaleString());
             $(".interstellarmixersamt").html(InterstellarMixers)
 
             //asteroid miner
@@ -421,7 +419,7 @@ function updateTotalCost(name){
             totalcost = Math.round(totalcost);
             price = Math.round(price);
             AsteroidMinersTotalCostMultiplied = totalcost;
-            $("#asteroidminersprice").html(AsteroidMinersTotalCostMultiplied);
+            $("#asteroidminersprice").html(AsteroidMinersTotalCostMultiplied.toLocaleString());
             $(".asteroidminersamt").html(AsteroidMiners)
     }
     //interstellarmixer
@@ -469,7 +467,7 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             CosmicClicksPrice =  newpriceval;
             updateCredsDisplay();
             updateCreditsPerSecond();
-            $(".cosmicclicksamt").html(CosmicClicks)
+            $(".cosmicclicksamt").html(CosmicClicks.toLocaleString())
             updateTotalCost("cosmicclicks");
         }
     }) // end of on cosmicclickpurchase
@@ -486,7 +484,7 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             CosmicOvensPrice =  newpriceval;
             updateCredsDisplay();
             updateCreditsPerSecond();
-            $(".cosmicovenamt").html(CosmicOvens)
+            $(".cosmicovenamt").html(CosmicOvens.toLocaleString())
             updateTotalCost("cosmicovens");
         }
     }) // end of on cosmic oven purchase
@@ -503,7 +501,7 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             InterstellarMixersPrice =  newpriceval;
             updateCredsDisplay();
             updateCreditsPerSecond();
-            $(".interstellarmixersamt").html(InterstellarMixers)
+            $(".interstellarmixersamt").html(InterstellarMixers.toLocaleString())
             updateTotalCost("interstellarmixers")
         }
     }) // end of on interstellar mixer purchase
@@ -520,7 +518,7 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             AsteroidMinersPrice =  newpriceval;
             updateCredsDisplay();
             updateCreditsPerSecond();
-            $(".asteroidminersamt").html(AsteroidMiners)
+            $(".asteroidminersamt").html(AsteroidMiners.toLocaleString())
             updateTotalCost("asteroidminers")
         }
     }) // end of on cosmic oven purchase
@@ -543,7 +541,6 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
                     description = eval($(this).data("description"));
                     varval = eval($(this).data('varval'));
                     vartotal = eval($(this).data("vartotal"));
-                    vartotal = vartotal.toFixed(2);
                     varpercent = 100 * (vartotal / CreditsPerSecond);
                     varpercent = varpercent.toFixed(1);
                     totalprod = eval($(this).data("vartotalproduction"));
@@ -560,9 +557,9 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
                         $("#itemproducingtotal").show();
                     }
                     $("#itemdescription").html(`${description}`)
-                    $("#itemproducingamt").html(`Each ${$(this).data("name")} Produces ${varval} ₵REDITS per second`);
-                    $("#itemproducingpercent").html(`${varamt} ${$(this).data("name2")} producing ${vartotal} ₵REDITS per second, which is ${varpercent}% of total ₵REDITS production`);
-                    $("#itemproducingtotal").html(`Total ₵REDITS produced by ${$(this).data("name2")}: ${totalprod}`)
+                    $("#itemproducingamt").html(`Each ${$(this).data("name")} Produces ${varval.toLocaleString()} ₵REDITS per second`);
+                    $("#itemproducingpercent").html(`${varamt.toLocaleString()} ${$(this).data("name2")} producing ${vartotal.toLocaleString({minimumFractionDigits: 2,maximumFractionDigits: 2})} ₵REDITS per second, which is ${varpercent}% of total ₵REDITS production`);
+                    $("#itemproducingtotal").html(`Total ₵REDITS produced by ${$(this).data("name2")}: ${totalprod.toLocaleString()}`)
                 } else {
                     $("#itemdescription").html(`An unknown item, perhaps gaining more ₵REDITS will give new information`);
                     if ($("#itemproducingamt").hasClass("hidestatstxt") != true ){
