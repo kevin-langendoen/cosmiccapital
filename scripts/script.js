@@ -247,7 +247,7 @@ function fifteenSecondLoop(){
 }
 
 function checkBuyableBorder(){
-    if (Credits >= CosmicClicksPrice ){
+    if (Credits >= CosmicClicksTotalCostMultiplied ){
         $(".cosmicclicksimgwrap").css("border-color", "rgb(166, 32, 255)")
     } else{
        if($(".cosmicclicksimgwrap").css("border-color") != "rgb(56, 0, 94)"){
@@ -264,7 +264,7 @@ function checkBuyableBorder(){
         $("#buymenu2").children(".buymenutxt").html(`Cosmic Ovens: <var class="buymenuvartxt cosmicovenamt">${CosmicOvens}</var>`)
         $("#buymenu2").children(".buymenutxt2").html(`Cost: <var id="cosmicovensprice" class="buymenuvartxt">${CosmicOvensTotalCostMultiplied}</var> ₵REDITS`)
     }
-    if (Credits >= CosmicOvensPrice){
+    if (Credits >= CosmicOvensTotalCostMultiplied){
         $(".cosmicovensimgwrap").css("border-color", "rgb(166, 32, 255)")
     }else{
         if($(".cosmicovensimgwrap").css("border-color") != "rgb(56, 0, 94)"){
@@ -281,7 +281,7 @@ function checkBuyableBorder(){
         $("#buymenu3").children(".buymenutxt").html(`Interstellar Mixers: <var class="buymenuvartxt interstellarmixersamt">${InterstellarMixers}</var>`)
         $("#buymenu3").children(".buymenutxt2").html(`Cost: <var id="interstellarmixersprice" class="buymenuvartxt">${InterstellarMixersTotalCostMultiplied}</var> ₵REDITS`)
     }
-    if (Credits >= InterstellarMixersPrice){
+    if (Credits >= InterstellarMixersTotalCostMultiplied){
         $(".interstellarmixersimgwrap").css("border-color", "rgb(166, 32, 255)")
     }else{
         if($(".interstellarmixersimgwrap").css("border-color") != "rgb(56, 0, 94)"){
@@ -298,7 +298,7 @@ function checkBuyableBorder(){
         $("#buymenu4").children(".buymenutxt").html(`Asteroid Miners: <var class="buymenuvartxt asteroidminersamt">${AsteroidMiners}</var>`)
         $("#buymenu4").children(".buymenutxt2").html(`Cost: <var id="asteroidminersprice" class="buymenuvartxt">${AsteroidMinersTotalCostMultiplied}</var> ₵REDITS`)
     }
-    if (Credits >= AsteroidMinersPrice){
+    if (Credits >= AsteroidMinersTotalCostMultiplied){
         $(".asteroidminersimgwrap").css("border-color", "rgb(166, 32, 255)")
     }else{
         if($(".asteroidminersimgwrap").css("border-color") != "rgb(56, 0, 94)"){
@@ -537,18 +537,47 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
     var description;
     $('.buymenuitem').on('mouseenter', function() {
             BUYMENUITEMHOVERINTERVAL = setInterval(() => {
-                description = eval($(this).data("description"))
-                varval = eval($(this).data('varval'));
                 varamt = eval($(this).data("varamt"));
-                vartotal = eval($(this).data("vartotal"));
-                vartotal = vartotal.toFixed(2)
-                varpercent = 100 * (vartotal / CreditsPerSecond);
-                varpercent = varpercent.toFixed(1)
-                totalprod = eval($(this).data("vartotalproduction"))
-                $("#itemdescription").html(`${description}`)
-                $("#itemproducingamt").html(`Each ${$(this).data("name")} Produces ${varval} ₵REDITS per second`);
-                $("#itemproducingpercent").html(`${varamt} ${$(this).data("name2")} producing ${vartotal} ₵REDITS per second, which is ${varpercent}% of total ₵REDITS production`);
-                $("#itemproducingtotal").html(`Total ₵REDITS produced by ${$(this).data("name2")}: ${totalprod}`)
+                varprice = eval($(this).data("price"));
+                if (varamt >= 1 || Credits >= (varprice / 2)){
+                    description = eval($(this).data("description"));
+                    varval = eval($(this).data('varval'));
+                    vartotal = eval($(this).data("vartotal"));
+                    vartotal = vartotal.toFixed(2);
+                    varpercent = 100 * (vartotal / CreditsPerSecond);
+                    varpercent = varpercent.toFixed(1);
+                    totalprod = eval($(this).data("vartotalproduction"));
+                    if ($("#itemproducingamt").hasClass("hidestatstxt") != false ){
+                        $("#itemproducingamt").removeClass("hidestatstxt");
+                        $("#itemproducingamt").show();
+                    }
+                    if ($("#itemproducingpercent").hasClass("hidestatstxt") != false ){
+                        $("#itemproducingpercent").removeClass("hidestatstxt");
+                        $("#itemproducingpercent").show();
+                    }
+                    if ($("#itemproducingtotal").hasClass("hidestatstxt") != false ){
+                        $("#itemproducingtotal").removeClass("hidestatstxt");
+                        $("#itemproducingtotal").show();
+                    }
+                    $("#itemdescription").html(`${description}`)
+                    $("#itemproducingamt").html(`Each ${$(this).data("name")} Produces ${varval} ₵REDITS per second`);
+                    $("#itemproducingpercent").html(`${varamt} ${$(this).data("name2")} producing ${vartotal} ₵REDITS per second, which is ${varpercent}% of total ₵REDITS production`);
+                    $("#itemproducingtotal").html(`Total ₵REDITS produced by ${$(this).data("name2")}: ${totalprod}`)
+                } else {
+                    $("#itemdescription").html(`An unknown item, perhaps gaining more ₵REDITS will give new information`);
+                    if ($("#itemproducingamt").hasClass("hidestatstxt") != true ){
+                        $("#itemproducingamt").addClass("hidestatstxt")
+                        $("#itemproducingamt").hide();
+                    }
+                    if ($("#itemproducingpercent").hasClass("hidestatstxt") != true ){
+                        $("#itemproducingpercent").addClass("hidestatstxt")
+                        $("#itemproducingpercent").hide();
+                    }
+                    if ($("#itemproducingtotal").hasClass("hidestatstxt") != true ){
+                        $("#itemproducingtotal").addClass("hidestatstxt")
+                        $("#itemproducingtotal").hide();
+                    }
+                }
         }, 100);
         $('.stats').css('display', 'block');
       });
