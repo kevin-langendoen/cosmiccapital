@@ -313,40 +313,9 @@
 
 }
 
-@keyframes border-top {
-  0% {
-    border-top-color: rgba(92, 4, 150, 0.75);
-  }
-  50% {
-    border-top-color: rgb(153, 0, 255);
-  }
-  100% {
-    border-top-color: rgba(92, 4, 150, 0.75);
-  }
-}
-
-@keyframes border-left {
-  0% {
-    border-left-color: rgba(92, 4, 150, 0.75);
-  }
-  50% {
-    border-left-color: rgb(153, 0, 255);
-  }
-  100% {
-    border-left-color: rgba(92, 4, 150, 0.75);
-  }
-}
-
-@keyframes border-bottom {
-  0% {
-    border-bottom-color: rgba(92, 4, 150, 0.75);
-  }
-  50% {
-    border-bottom-color: rgb(153, 0, 255);
-  }
-  100% {
-    border-bottom-color: rgba(92, 4, 150, 0.75);
-  }
+.hidebuymenuitem{
+  background: linear-gradient(to bottom, rgb(37, 0, 44), rgb(16, 0, 19));
+  animation: gradient 5s linear infinite;
 }
 
 
@@ -384,6 +353,44 @@
   animation: stars 30s infinite linear;
 }
 /* animation */
+
+@keyframes border-top {
+  0% {
+    border-top-color: rgba(92, 4, 150, 0.75);
+  }
+  50% {
+    border-top-color: rgb(153, 0, 255);
+  }
+  100% {
+    border-top-color: rgba(92, 4, 150, 0.75);
+  }
+}
+
+@keyframes border-left {
+  0% {
+    border-left-color: rgba(92, 4, 150, 0.75);
+  }
+  50% {
+    border-left-color: rgb(153, 0, 255);
+  }
+  100% {
+    border-left-color: rgba(92, 4, 150, 0.75);
+  }
+}
+
+@keyframes border-bottom {
+  0% {
+    border-bottom-color: rgba(92, 4, 150, 0.75);
+  }
+  50% {
+    border-bottom-color: rgb(153, 0, 255);
+  }
+  100% {
+    border-bottom-color: rgba(92, 4, 150, 0.75);
+  }
+}
+
+
 @keyframes gradient {
   0% {
     background-position: 0% 50%;
