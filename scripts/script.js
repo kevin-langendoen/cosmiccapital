@@ -1,5 +1,6 @@
 var gameSave = null;
 var purchaseAmount = 1;
+
 var Credits = 0;
 
 var CreditsPerSecond = 0; //total credits per second
@@ -15,8 +16,8 @@ var CosmicClicks = 0; //amount of cosmic clicks owned
 var CosmicClicksValue = 0.25; //amount of credits pre second per each cosmic click
 var CosmicClicksPrice = 10; // credit price of cosmic click
 var CosmicClicksTotal = CosmicClicks * CosmicClicksValue; //how many credits cosmic clicks are producing in total
-var CosmicClicksPriceMult = 1.0; // price goes up by 120% each purchase
-var CosmicClicksTotalCostMultiplied = 0;
+var CosmicClicksPriceMult = 1.151; // price goes up by 120% each purchase
+var CosmicClicksTotalCostMultiplied = 0; //price * purchaseAmount
 
 var CosmicOvensDescription = "Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster";
 var CosmicOvensCredsProduced = 0;
