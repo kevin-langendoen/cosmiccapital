@@ -50,7 +50,7 @@ var AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
 var AsteroidMinersPriceMult = 1.151;
 var AsteroidMinersTotalCostMultiplied = 0;
 
-//localStorage.clear(); //gamesave clearing for development purposes
+localStorage.clear(); //gamesave clearing for development purposes
 
 $(document).ready(function(){
     // Get the width of the buymenuwrap element
@@ -250,10 +250,7 @@ function addCreds(){
 
         // new item
 
-        
     }
-    
-
 };
 
 function oneSecondLoop(){ //animates the keyframes for spaceship
@@ -355,6 +352,7 @@ function isBuyable(item){
         return false
     }
 }
+
 function highlightPurchaseAmount(btn){
     $(".purchaseAmountBtn").each(function(){
         $(this).removeClass("purchaseAmountSelected");
@@ -437,7 +435,6 @@ function updateTotalCost(name){
             $("#asteroidminersprice").html(formatNumber(AsteroidMinersTotalCostMultiplied));
             $(".asteroidminersamt").html(formatNumber(AsteroidMiners))
     }
-    //interstellarmixer
 
 };
 
@@ -467,6 +464,7 @@ function calculateNewItemPrice(itemPrice,itemPriceMult){
     price = Math.round(price);
     return price;
 }
+
 function formatNumber(number) {
     // list of number suffixes
     const suffixes = ['', ' Thousand',' Million', ' Billion', ' Trillion', ' Quadrillion', ' Quintillion',
@@ -496,12 +494,13 @@ function formatNumber(number) {
     return number;
 }
 
-function clicksFunctions(){ //initializes most of the onclicks and hovers
-    $('#spaceship').click(function(ev){ //click on spaceship
-        $(this).addClass("spaceship2");
+function spaceShipClickEffect(item,event){
+    $(item).addClass("spaceship2");
         setTimeout(() => {
-            $(this).removeClass("spaceship2");
+            $(item).removeClass("spaceship2");
         }, 50);
+
+        // remove click me text after hitting 5 credits
         if($("#clickme").css("display") == "block" && Credits >= 4){
             $("#clickme").css("opacity", "0");
             setTimeout(() => {
@@ -510,7 +509,35 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
                 $("#spaceshipwrap").css('top', "58.5%");
             }, 1000);
         }
-    
+
+    // Create the floating div
+    const floatingDiv = $('<div>').attr('id', 'floating-div').html(`<p>+${formatNumber(ClickValue)} ₵REDITS</p>`);
+    floatingDiv.addClass("txt")
+    // Position the floating div at the location of the mouse click
+    $('body').append(floatingDiv);
+
+    // Position the floating div at the location of the mouse click
+    floatingDiv.css({
+        left: event.pageX,
+        top: event.pageY,
+    });
+
+    // Animate the floating div
+    floatingDiv.animate({
+        top: '20%',
+        opacity: 0
+    }, 2000, function() {
+        // Remove the element when the animation is complete
+        floatingDiv.remove();
+    });
+}
+
+function clicksFunctions(){ //initializes most of the onclicks and hovers
+    $('#spaceship').click(function(ev){ //click on spaceship
+
+        spaceShipClickEffect(this,ev);
+
+        //add credits
         Credits += ClickValue; //adds creds probably need to account for multipliers too
         updateCredsDisplay();
     }) // end of on spaceshipclick
@@ -643,8 +670,6 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
       });
       
 }
-
-
 
 function getRandomInt(min, max) { //gets random integer
     min = Math.ceil(min);

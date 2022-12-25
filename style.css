@@ -360,6 +360,14 @@
   border-color:white;
 }
 
+#floating-div{
+  position:absolute;
+  background-color: transparent;
+  pointer-events:none;
+  user-select:none;
+  font-size:150%;
+}
+
 
 
 /*background stars animation*/
