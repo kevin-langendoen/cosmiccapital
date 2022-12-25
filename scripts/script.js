@@ -82,7 +82,7 @@ $(document).ready(function(){
 
 function loadSaveData(){
     if(localStorage.getItem("gameSave") != null || localStorage.getItem("gameSave") != undefined){
-        gameSave = JSON.parse(localStorage.getItem("gameSave"))
+        gameSave = JSON.parse(localStorage.getItem("gameSave"));
         Credits = gameSave.credits;
         CreditsPerSecond = gameSave.creditspersecond;
         totalCostReduction = gameSave.totalcostreduction;
