@@ -13,6 +13,7 @@ var totalCostReduction = 100; // if 100, user pays 100% of price
 var globalProductionModifier = 100; // adds extra % production if any
 
 var ClickValue = 1; // mouse click value
+var CreditsFromClicks = 0;
 
 var CosmicClicksDescription = "Cosmic Clicks allow you to tap into the power of the cosmos to increase ₵REDITS production";
 var CosmicClicksCredsProduced = 0; //total amount of credits produced by cosmic clicks
@@ -186,7 +187,6 @@ var calc = 0; //calc variable
 var cctots = 0; //cosmic clicks adder until above 1.0
 var cotots = 0; //cosmic oven adders until above 1.0
 function addCreds(){
-    if(document.hasFocus()){ // can split into ten because loops run at full speed
         //cosmic clicks
         calc = 0;
         calc = CosmicClicksTotal / 10;
@@ -223,34 +223,6 @@ function addCreds(){
 
         // new item
         calc = 0;
-    } else{ //in background loop slows down to once per second so no need to divide by 10
-        //cosmic clicks
-        cctots += CosmicClicksTotal;
-        if (cctots >= 1.00)  {
-            cctots = Math.round(cctots);
-            Credits += cctots;
-            CosmicClicksCredsProduced += cctots;
-            cctots = 0;
-        }
-
-        //cosmic ovens
-        cotots += CosmicOvensTotal;
-        if (cotots >= 1.00){
-            cotots = Math.round(cotots);
-            Credits += cotots;
-            CosmicOvensCredsProduced += cotots;
-            cotots = 0;
-        }
-        //interstellar mixers
-        Credits += InterstellarMixersTotal;
-        InterstellarMixersCredsProduced += calc;
-        // asteroid miners
-        Credits += AsteroidMinersTotal;
-        AsteroidMinersCredsProduced += calc;
-
-        // new item
-
-    }
 };
 
 function oneSecondLoop(){ //animates the keyframes for spaceship
@@ -539,6 +511,7 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
 
         //add credits
         Credits += ClickValue; //adds creds probably need to account for multipliers too
+        CreditsFromClicks += ClickValue; //add total amount produced
         updateCredsDisplay();
     }) // end of on spaceshipclick
 
