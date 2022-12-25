@@ -186,7 +186,7 @@ var calc = 0; //calc variable
 var cctots = 0; //cosmic clicks adder until above 1.0
 var cotots = 0; //cosmic oven adders until above 1.0
 function addCreds(){
-    if(document.hasFocus()){ // can split into ten because loops run at
+    if(document.hasFocus()){ // can split into ten because loops run at full speed
         //cosmic clicks
         calc = 0;
         calc = CosmicClicksTotal / 10;
