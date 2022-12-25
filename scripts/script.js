@@ -5,7 +5,7 @@
 var gameSave = null;
 var purchaseAmount = 1;
 
-var Credits = 10000;
+var Credits = 0;
 
 var CreditsPerSecond = 0; //total credits per second
 
@@ -50,7 +50,7 @@ var AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
 var AsteroidMinersPriceMult = 1.151;
 var AsteroidMinersTotalCostMultiplied = 0;
 
-localStorage.clear(); //gamesave clearing for development purposes
+//localStorage.clear(); //gamesave clearing for development purposes
 
 $(document).ready(function(){
     // Get the width of the buymenuwrap element
