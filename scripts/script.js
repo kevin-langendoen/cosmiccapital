@@ -1,5 +1,5 @@
 /*All this code is copyright thisisnotkj, kj and Kevin Langendoen, 2022-2023.
-    -With help from Paradox.
+    - With help from Paradox.
 */
 
 var gameSave = null;
@@ -50,7 +50,7 @@ var AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
 var AsteroidMinersPriceMult = 1.151;
 var AsteroidMinersTotalCostMultiplied = 0;
 
-localStorage.clear(); //gamesave clearing for development purposes
+//localStorage.clear(); //gamesave clearing for development purposes
 
 $(document).ready(function(){
     // Get the width of the buymenuwrap element
