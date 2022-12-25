@@ -355,6 +355,43 @@ function isBuyable(item){
         return false
     }
 }
+function highlightPurchaseAmount(btn){
+    $(".purchaseAmountBtn").each(function(){
+        $(this).removeClass("purchaseAmountSelected");
+    })
+    switch (parseInt($(btn).data("id"))){
+        case 1:
+            $(btn).addClass("purchaseAmountSelected");
+            purchaseAmount = 1;
+            updateTotalCost();
+            break;
+        case 5:
+            $(btn).addClass("purchaseAmountSelected");
+            purchaseAmount = 5;
+            updateTotalCost();
+            break;
+        case 10:
+            $(btn).addClass("purchaseAmountSelected");
+            purchaseAmount = 10;
+            updateTotalCost();
+            break;
+        case 50:
+            $(btn).addClass("purchaseAmountSelected");
+            purchaseAmount = 50;
+            updateTotalCost();
+            break;
+        case 100:
+            $(btn).addClass("purchaseAmountSelected");
+            purchaseAmount = 100;
+            updateTotalCost();
+            break;
+        default:
+            $(btn).addClass("purchaseAmountSelected");
+            purchaseAmount = 1;
+            updateTotalCost();
+            break;
+    }
+}
 
 function updateTotalCost(name){
     let price = 0;
@@ -478,6 +515,10 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
         updateCredsDisplay();
     }) // end of on spaceshipclick
 
+    $(".purchaseAmountBtn").click(function(ev){
+        highlightPurchaseAmount(this)
+    })
+
     $(".buymenuiconwrap").click(function(ev){
         let item = $(this).find('img').attr('id')
         if(isBuyable(item)){
@@ -563,15 +604,12 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
                     totalprod = eval($(this).data("vartotalproduction"));
                     if ($("#itemproducingamt").hasClass("hidestatstxt") != false ){
                         $("#itemproducingamt").removeClass("hidestatstxt");
-                        $("#itemproducingamt").show();
                     }
                     if ($("#itemproducingpercent").hasClass("hidestatstxt") != false ){
                         $("#itemproducingpercent").removeClass("hidestatstxt");
-                        $("#itemproducingpercent").show();
                     }
                     if ($("#itemproducingtotal").hasClass("hidestatstxt") != false ){
                         $("#itemproducingtotal").removeClass("hidestatstxt");
-                        $("#itemproducingtotal").show();
                     }
                     $("#itemdescription").html(`${description}`)
                     $("#itemproducingamt").html(`Each ${$(this).data("name")} Produces ${formatNumber(varval)} ₵REDITS per second`);
@@ -581,15 +619,12 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
                     $("#itemdescription").html(`An unknown item, perhaps gaining more ₵REDITS will give new information`);
                     if ($("#itemproducingamt").hasClass("hidestatstxt") != true ){
                         $("#itemproducingamt").addClass("hidestatstxt")
-                        $("#itemproducingamt").hide();
                     }
                     if ($("#itemproducingpercent").hasClass("hidestatstxt") != true ){
                         $("#itemproducingpercent").addClass("hidestatstxt")
-                        $("#itemproducingpercent").hide();
                     }
                     if ($("#itemproducingtotal").hasClass("hidestatstxt") != true ){
                         $("#itemproducingtotal").addClass("hidestatstxt")
-                        $("#itemproducingtotal").hide();
                     }
                 }
         }, 100);
