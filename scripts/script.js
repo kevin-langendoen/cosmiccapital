@@ -5,7 +5,7 @@
 var gameSave = null;
 var purchaseAmount = 1;
 
-var Credits = 0;
+var Credits = 10000;
 
 var CreditsPerSecond = 0; //total credits per second
 
@@ -50,7 +50,7 @@ var AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
 var AsteroidMinersPriceMult = 1.151;
 var AsteroidMinersTotalCostMultiplied = 0;
 
-//localStorage.clear(); //gamesave clearing for development purposes
+localStorage.clear(); //gamesave clearing for development purposes
 
 $(document).ready(function(){
     // Get the width of the buymenuwrap element
@@ -121,14 +121,6 @@ function loadSaveData(){
         AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
         AsteroidMinersPriceMult = gameSave.asteroidminerspricemult ??= 1.151;
 
-        //remove later
-        if (CosmicClicksPriceMult != 1.151 || CosmicOvensPriceMult != 1.151 || InterstellarMixersPriceMult != 1.151 || AsteroidMinersPriceMult != 1.51){
-            CosmicClicksPriceMult = 1.151;
-            CosmicOvensPriceMult = 1.151;
-            InterstellarMixersPriceMult = 1.151;
-            AsteroidMinersPriceMult = 1.151;
-        }
-
     }
 }
 
@@ -175,7 +167,6 @@ function saveGameData(){
 function updateCredsDisplay(){ //updates text
     $("#credits").html(formatNumber(Credits));
     $("#creditspersecond").html(formatNumber(CreditsPerSecond))
-    document.title = `₵REDITS: ${formatNumber(Credits)} | Cosmic Capital`;
 }
 
 function updateCreditsPerSecond(){
@@ -187,48 +178,80 @@ function updateCreditsPerSecond(){
     val += AsteroidMinersTotal;
 
     CreditsPerSecond = val;
+
+    document.title = `₵REDITS: ${formatNumber(Credits)} | Cosmic Capital`;
 }
 
 var calc = 0; //calc variable
 var cctots = 0; //cosmic clicks adder until above 1.0
 var cotots = 0; //cosmic oven adders until above 1.0
 function addCreds(){
-    //cosmic clicks
-    calc = 0;
-    calc = CosmicClicksTotal / 10;
-    cctots += calc;
-    if (cctots >= 1.00)  {
-        cctots = Math.round(cctots);
-        Credits += cctots;
-        CosmicClicksCredsProduced += cctots;
-        cctots = 0;
-    }
-    //cosmic ovens
-    calc = 0;
-    calc = CosmicOvensTotal / 10;
-    cotots += calc;
-    if (cotots >= 1.00){
-        cotots = Math.round(cotots);
-        Credits += cotots;
-        CosmicOvensCredsProduced += cotots;
-        cotots = 0;
-    }
-    //interstellar mixers
-    calc = 0;
-    calc = InterstellarMixersTotal / 10; // no need for adding as it will always be above 1
-    calc = Math.round(calc)
-    Credits += calc;
-    InterstellarMixersCredsProduced += calc;
+    if(document.hasFocus()){ // can split into ten because loops run at
+        //cosmic clicks
+        calc = 0;
+        calc = CosmicClicksTotal / 10;
+        cctots += calc;
+        if (cctots >= 1.00)  {
+            cctots = Math.round(cctots);
+            Credits += cctots;
+            CosmicClicksCredsProduced += cctots;
+            cctots = 0;
+        }
+        //cosmic ovens
+        calc = 0;
+        calc = CosmicOvensTotal / 10;
+        cotots += calc;
+        if (cotots >= 1.00){
+            cotots = Math.round(cotots);
+            Credits += cotots;
+            CosmicOvensCredsProduced += cotots;
+            cotots = 0;
+        }
+        //interstellar mixers
+        calc = 0;
+        calc = InterstellarMixersTotal / 10; // no need for adding as it will always be above 1
+        calc = Math.round(calc)
+        Credits += calc;
+        InterstellarMixersCredsProduced += calc;
 
-    // asteroid miners
-    calc = 0;
-    calc = AsteroidMinersTotal / 10;
-    calc = Math.round(calc)
-    Credits += calc;
-    AsteroidMinersCredsProduced += calc;
+        // asteroid miners
+        calc = 0;
+        calc = AsteroidMinersTotal / 10;
+        calc = Math.round(calc)
+        Credits += calc;
+        AsteroidMinersCredsProduced += calc;
 
-    // new item
-    calc = 0;
+        // new item
+        calc = 0;
+    } else{ //in background loop slows down to once per second so no need to divide by 10
+        //cosmic clicks
+        cctots += CosmicClicksTotal;
+        if (cctots >= 1.00)  {
+            cctots = Math.round(cctots);
+            Credits += cctots;
+            CosmicClicksCredsProduced += cctots;
+            cctots = 0;
+        }
+
+        //cosmic ovens
+        cotots += CosmicOvensTotal;
+        if (cotots >= 1.00){
+            cotots = Math.round(cotots);
+            Credits += cotots;
+            CosmicOvensCredsProduced += cotots;
+            cotots = 0;
+        }
+        //interstellar mixers
+        Credits += InterstellarMixersTotal;
+        InterstellarMixersCredsProduced += calc;
+        // asteroid miners
+        Credits += AsteroidMinersTotal;
+        AsteroidMinersCredsProduced += calc;
+
+        // new item
+
+        
+    }
     
 
 };
