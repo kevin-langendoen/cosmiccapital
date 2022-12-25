@@ -1,10 +1,15 @@
+/*All this code is copyright thisisnotkj, kj and Kevin Langendoen, 2022-2023.
+    -With help from Paradox.
+*/
+
 var gameSave = null;
 var purchaseAmount = 1;
+
 var Credits = 0;
 
 var CreditsPerSecond = 0; //total credits per second
 
-var totalCostReduction = 100; // total % of price of items
+var totalCostReduction = 100; // if 100, user pays 100% of price
 var globalProductionModifier = 100; // adds extra % production if any
 
 var ClickValue = 1; // mouse click value
@@ -15,8 +20,8 @@ var CosmicClicks = 0; //amount of cosmic clicks owned
 var CosmicClicksValue = 0.25; //amount of credits pre second per each cosmic click
 var CosmicClicksPrice = 10; // credit price of cosmic click
 var CosmicClicksTotal = CosmicClicks * CosmicClicksValue; //how many credits cosmic clicks are producing in total
-var CosmicClicksPriceMult = 1.175; // price goes up by 120% each purchase
-var CosmicClicksTotalCostMultiplied = 0;
+var CosmicClicksPriceMult = 1.151; // price goes up by 120% each purchase
+var CosmicClicksTotalCostMultiplied = 0; //price * purchaseAmount
 
 var CosmicOvensDescription = "Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster";
 var CosmicOvensCredsProduced = 0;
@@ -24,16 +29,16 @@ var CosmicOvens = 0;
 var CosmicOvensValue = 1;
 var CosmicOvensPrice = 100;
 var CosmicOvensTotal = CosmicOvens * CosmicOvensValue;
-var CosmicOvensPriceMult = 1.2;
+var CosmicOvensPriceMult = 1.151;
 var CosmicOvensTotalCostMultiplied = 0;
 
 var InterstellarMixersDescription = "A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation";
 var InterstellarMixersCredsProduced = 0;
 var InterstellarMixers = 0;
 var InterstellarMixersValue = 10; // amt of creds / sec
-var InterstellarMixersPrice = 1000;
+var InterstellarMixersPrice = 1150;
 var InterstellarMixersTotal = InterstellarMixers * InterstellarMixersValue;
-var InterstellarMixersPriceMult = 1.25;
+var InterstellarMixersPriceMult = 1.151;
 var InterstellarMixersTotalCostMultiplied = 0;
 
 var AsteroidMinersDescription = "An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production";
@@ -42,10 +47,8 @@ var AsteroidMiners = 0;
 var AsteroidMinersValue = 100;
 var AsteroidMinersPrice = 4500;
 var AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
-var AsteroidMinersPriceMult = 1.275;
+var AsteroidMinersPriceMult = 1.151;
 var AsteroidMinersTotalCostMultiplied = 0;
-
-
 
 //localStorage.clear(); //gamesave clearing for development purposes
 
@@ -116,7 +119,15 @@ function loadSaveData(){
         AsteroidMinersValue = gameSave.asteroidminersvalue ??= 100;
         AsteroidMinersPrice = gameSave.asteroidminersprice ??= 4500;
         AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
-        AsteroidMinersPriceMult = gameSave.asteroidminerspricemult ??= 1.275;
+        AsteroidMinersPriceMult = gameSave.asteroidminerspricemult ??= 1.151;
+
+        //remove later
+        if (CosmicClicksPriceMult != 1.151 || CosmicOvensPriceMult != 1.151 || InterstellarMixersPriceMult != 1.151 || AsteroidMinersPriceMult != 1.51){
+            CosmicClicksPriceMult = 1.151;
+            CosmicOvensPriceMult = 1.151;
+            InterstellarMixersPriceMult = 1.151;
+            AsteroidMinersPriceMult = 1.151;
+        }
 
     }
 }
@@ -162,17 +173,20 @@ function saveGameData(){
 };
 
 function updateCredsDisplay(){ //updates text
-    $("#credits").html(Credits);
-    document.title = `₵REDITS: ${Credits} | Cosmic Capital`;
+    $("#credits").html(formatNumber(Credits));
+    $("#creditspersecond").html(formatNumber(CreditsPerSecond))
+    document.title = `₵REDITS: ${formatNumber(Credits)} | Cosmic Capital`;
 }
 
 function updateCreditsPerSecond(){
-    CreditsPerSecond = 0;
+    let val = 0;
     //cosmic clicks
-    CreditsPerSecond += CosmicClicksTotal;
-    CreditsPerSecond += CosmicOvensTotal;
-    CreditsPerSecond += InterstellarMixersTotal;
-    CreditsPerSecond += AsteroidMinersTotal;
+    val += CosmicClicksTotal;
+    val += CosmicOvensTotal;
+    val += InterstellarMixersTotal;
+    val += AsteroidMinersTotal;
+
+    CreditsPerSecond = val;
 }
 
 var calc = 0; //calc variable
@@ -255,14 +269,15 @@ function checkBuyableBorder(){
        }
     }
     //cosmic ovens
-    if (CosmicOvens < 1 && Credits < (CosmicOvensTotalCostMultiplied / 2))
+    if (CosmicOvens < 1 && Credits < (CosmicOvensPrice / 2) && $("#buymenu2").hasClass("unlockedItem") == false)
     {
         $("#buymenu2").addClass("hidebuymenuitem")
         $("#buymenu2").children("p").html("???")
-    } else if ($("#buymenu2").hasClass("hidebuymenuitem")){
-        $("#buymenu2").removeClass("hidebuymenuitem")
+    } else if ( $("#buymenu2").hasClass("hidebuymenuitem") ){
+        $("#buymenu2").removeClass("hidebuymenuitem");
+        $("#buymenu2").addClass("unlockedItem");
         $("#buymenu2").children(".buymenutxt").html(`Cosmic Ovens: <var class="buymenuvartxt cosmicovenamt">${CosmicOvens}</var>`)
-        $("#buymenu2").children(".buymenutxt2").html(`Cost: <var id="cosmicovensprice" class="buymenuvartxt">${CosmicOvensTotalCostMultiplied}</var> ₵REDITS`)
+        $("#buymenu2").children(".buymenutxt2").html(`Cost: <var id="cosmicovensprice" class="buymenuvartxt">${formatNumber(CosmicOvensTotalCostMultiplied)}</var> ₵REDITS`)
     }
     if (Credits >= CosmicOvensTotalCostMultiplied){
         $(".cosmicovensimgwrap").css("border-color", "rgb(166, 32, 255)")
@@ -272,14 +287,15 @@ function checkBuyableBorder(){
        }
     } 
     //interstellarmixers
-    if (InterstellarMixers < 1 && Credits < (InterstellarMixersTotalCostMultiplied / 2))
+    if (InterstellarMixers < 1 && Credits < (InterstellarMixersPrice / 2) && $("#buymenu3").hasClass("unlockedItem") == false)
     {
         $("#buymenu3").addClass("hidebuymenuitem")
         $("#buymenu3").children("p").html("???")
     } else if ($("#buymenu3").hasClass("hidebuymenuitem")){
-        $("#buymenu3").removeClass("hidebuymenuitem")
-        $("#buymenu3").children(".buymenutxt").html(`Interstellar Mixers: <var class="buymenuvartxt interstellarmixersamt">${InterstellarMixers}</var>`)
-        $("#buymenu3").children(".buymenutxt2").html(`Cost: <var id="interstellarmixersprice" class="buymenuvartxt">${InterstellarMixersTotalCostMultiplied}</var> ₵REDITS`)
+        $("#buymenu3").removeClass("hidebuymenuitem");
+        $("#buymenu3").addClass("unlockedItem");
+        $("#buymenu3").children(".buymenutxt").html(`Interstellar Mixers: <var class="buymenuvartxt interstellarmixersamt">${InterstellarMixers}</var>`);
+        $("#buymenu3").children(".buymenutxt2").html(`Cost: <var id="interstellarmixersprice" class="buymenuvartxt">${formatNumber(InterstellarMixersTotalCostMultiplied)}</var> ₵REDITS`)
     }
     if (Credits >= InterstellarMixersTotalCostMultiplied){
         $(".interstellarmixersimgwrap").css("border-color", "rgb(166, 32, 255)")
@@ -289,14 +305,15 @@ function checkBuyableBorder(){
        }
     }
     //asteroid miners
-    if (AsteroidMiners < 1 && Credits < (AsteroidMinersTotalCostMultiplied / 2))
+    if (AsteroidMiners < 1 && Credits < (AsteroidMinersPrice / 2) && $("#buymenu4").hasClass("unlockedItem") == false)
     {
-        $("#buymenu4").addClass("hidebuymenuitem")
-        $("#buymenu4").children("p").html("???")
-    } else if ($("#buymenu4").hasClass("hidebuymenuitem")){
-        $("#buymenu4").removeClass("hidebuymenuitem")
+        $("#buymenu4").addClass("hidebuymenuitem");
+        $("#buymenu4").children("p").html("???");
+    } else if ($("#buymenu4").hasClass("hidebuymenuitem" )){
+        $("#buymenu4").removeClass("hidebuymenuitem");
+        $("#buymenu4").addClass("unlockedItem");
         $("#buymenu4").children(".buymenutxt").html(`Asteroid Miners: <var class="buymenuvartxt asteroidminersamt">${AsteroidMiners}</var>`)
-        $("#buymenu4").children(".buymenutxt2").html(`Cost: <var id="asteroidminersprice" class="buymenuvartxt">${AsteroidMinersTotalCostMultiplied}</var> ₵REDITS`)
+        $("#buymenu4").children(".buymenutxt2").html(`Cost: <var id="asteroidminersprice" class="buymenuvartxt">${formatNumber(AsteroidMinersTotalCostMultiplied)}</var> ₵REDITS`)
     }
     if (Credits >= AsteroidMinersTotalCostMultiplied){
         $(".asteroidminersimgwrap").css("border-color", "rgb(166, 32, 255)")
@@ -321,112 +338,103 @@ function updateTotalCost(name){
     let totalcost = 0;
     switch(name){
         case "cosmicclicks":
-            //cosmic click
-            price = CosmicClicksPrice;
-            for (let i = 0; i < purchaseAmount; i++){
-                price = ((price * CosmicClicksPriceMult) / 100) * totalCostReduction;
-                totalcost += price;
-            }
-            totalcost = Math.round(totalcost);
-            price = Math.round(price);
-            CosmicClicksTotalCostMultiplied = totalcost;
-            $("#cosmicclicksprice").html(CosmicClicksTotalCostMultiplied);
+            CosmicClicksTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(CosmicClicksPrice,CosmicClicksPriceMult);
+            $("#cosmicclicksprice").html(formatNumber(CosmicClicksTotalCostMultiplied));
             break;
         
         case "cosmicovens":
-            //cosmic oven
-            price = CosmicOvensPrice;
-            for (let i = 0; i < purchaseAmount; i++){
-                price = ((price * CosmicOvensPriceMult) / 100) * totalCostReduction;
-                totalcost += price;
-            }
-            totalcost = Math.round(totalcost);
-            price = Math.round(price);
-            CosmicOvensTotalCostMultiplied = totalcost;
-            $("#cosmicovensprice").html(CosmicOvensTotalCostMultiplied);
+            CosmicOvensTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(CosmicOvensPrice,CosmicOvensPriceMult);
+            $("#cosmicovensprice").html(formatNumber(CosmicOvensTotalCostMultiplied));
             break;
 
         case "interstellarmixers":
-            //interstellar mixer
-            price = InterstellarMixersPrice;
-            for (let i = 0; i < purchaseAmount; i++){
-                price = ((price * InterstellarMixersPriceMult) / 100) * totalCostReduction;
-                totalcost += price;
-            }
-            totalcost = Math.round(totalcost);
-            price = Math.round(price);
-            InterstellarMixersTotalCostMultiplied = totalcost;
-            $("#interstellarmixersprice").html(InterstellarMixersTotalCostMultiplied);
+            InterstellarMixersTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(InterstellarMixersPrice,InterstellarMixersPriceMult);
+            $("#interstellarmixersprice").html(formatNumber(InterstellarMixersTotalCostMultiplied));
             break;
 
         case "asteroidminers":
-            //asteroid miner
-            price = AsteroidMinersPrice;
-            for (let i = 0; i < purchaseAmount; i++){
-                price = ((price * AsteroidMinersPriceMult) / 100) * totalCostReduction;
-                totalcost += price;
-            }
-            totalcost = Math.round(totalcost);
-            price = Math.round(price);
-            AsteroidMinersTotalCostMultiplied = totalcost;
-            $("#asteroidminersprice").html(AsteroidMinersTotalCostMultiplied);
+            AsteroidMinersTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(AsteroidMinersPrice,AsteroidMinersPriceMult);
+            $("#asteroidminersprice").html(formatNumber(AsteroidMinersTotalCostMultiplied));
             break;
 
         default:
-            //cosmic click
-            price = CosmicClicksPrice;
-            for (let i = 0; i < purchaseAmount; i++){
-                price = ((price * CosmicClicksPriceMult) / 100) * totalCostReduction;
-                totalcost += price;
-            }
-            totalcost = Math.round(totalcost);
-            price = Math.round(price);
-            CosmicClicksTotalCostMultiplied = totalcost;
-            $("#cosmicclicksprice").html(CosmicClicksTotalCostMultiplied);
-            $(".cosmicclicksamt").html(CosmicClicks)
+            CosmicClicksTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(CosmicClicksPrice,CosmicClicksPriceMult);
+            $("#cosmicclicksprice").html(formatNumber(CosmicClicksTotalCostMultiplied));
+            $(".cosmicclicksamt").html(formatNumber(CosmicClicks))
 
             //cosmic oven
-            price = CosmicOvensPrice;
-            totalcost = 0; //important
-            for (let i = 0; i < purchaseAmount; i++){
-                price = ((price * CosmicOvensPriceMult) / 100) * totalCostReduction;
-                totalcost += price;
-            }
-            totalcost = Math.round(totalcost);
-            price = Math.round(price);
-            CosmicOvensTotalCostMultiplied = totalcost;
-            $("#cosmicovensprice").html(CosmicOvensTotalCostMultiplied);
-            $(".cosmicovenamt").html(CosmicOvens)
+            CosmicOvensTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(CosmicOvensPrice,CosmicOvensPriceMult);
+            $("#cosmicovensprice").html(formatNumber(CosmicOvensTotalCostMultiplied));
+            $(".cosmicovenamt").html(formatNumber(CosmicOvens))
 
             //interstellar mixer
-            price = InterstellarMixersPrice;
-            totalcost = 0 //important
-            for (let i = 0; i < purchaseAmount; i++){
-                price = ((price * InterstellarMixersPriceMult) / 100) * totalCostReduction;
-                totalcost += price;
-            }
-            totalcost = Math.round(totalcost);
-            price = Math.round(price);
-            InterstellarMixersTotalCostMultiplied = totalcost;
-            $("#interstellarmixersprice").html(InterstellarMixersTotalCostMultiplied);
-            $(".interstellarmixersamt").html(InterstellarMixers)
+            InterstellarMixersTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(InterstellarMixersPrice,InterstellarMixersPriceMult);
+            $("#interstellarmixersprice").html(formatNumber(InterstellarMixersTotalCostMultiplied));
+            $(".interstellarmixersamt").html(formatNumber(InterstellarMixers))
 
             //asteroid miner
-            price = AsteroidMinersPrice;
-            totalcost = 0; //important
-            for (let i = 0; i < purchaseAmount; i++){
-                price = ((price * AsteroidMinersPriceMult) / 100) * totalCostReduction;
-                totalcost += price;
-            }
-            totalcost = Math.round(totalcost);
-            price = Math.round(price);
-            AsteroidMinersTotalCostMultiplied = totalcost;
-            $("#asteroidminersprice").html(AsteroidMinersTotalCostMultiplied);
-            $(".asteroidminersamt").html(AsteroidMiners)
+            AsteroidMinersTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(AsteroidMinersPrice,AsteroidMinersPriceMult);
+            $("#asteroidminersprice").html(formatNumber(AsteroidMinersTotalCostMultiplied));
+            $(".asteroidminersamt").html(formatNumber(AsteroidMiners))
     }
     //interstellarmixer
 
 };
+
+function calculateTotalCostFromPurchaseAmount(itemPrice,itemPriceMult){
+    let price = itemPrice;
+    let totalcost = 0;
+    for (let i=0;i< purchaseAmount;i++){
+        if(i==0){
+            price = itemPrice;
+            totalcost += price;
+        } else {
+            price = ((price * itemPriceMult)/100) * totalCostReduction;
+            totalcost += price;
+        }
+    };
+    totalcost = Math.round(totalcost);
+    return totalcost;
+}
+
+function calculateNewItemPrice(itemPrice,itemPriceMult){
+    let price = itemPrice;
+    let totalcost = 0;
+    for (let i=0;i< purchaseAmount;i++){
+            price = ((price * itemPriceMult)/100) * totalCostReduction;
+            totalcost += price;
+    };
+    price = Math.round(price);
+    return price;
+}
+function formatNumber(number) {
+    // list of number suffixes
+    const suffixes = ['', ' Thousand',' Million', ' Billion', ' Trillion', ' Quadrillion', ' Quintillion',
+    ' Sextillion', ' Septillion', ' Octillion', ' Nonillion', ' Decillion', ' Undecillion', ' Duodecillion',
+    ' Tredecillion', ' Quattuordecillion', ' Quindecillion', ' Sexdecillion', ' Septendecillion', ' Octodecillion',
+    ' Novemdecillion', ' Vigintillion', ' Unvigintillion', ' Duovigintillion', ' Tresvigintillion', ' Quattuorvigintillion',
+    ' Quinvigintillion', ' Sexvigintillion', ' Septenvigintillion', ' Octovigintillion', ' Nonvigintillion', ' Trigintillion',
+    ' Untrigintillion', ' Duotrigintillion', ' Googol', " Skewer's Number", ' Centillion', ' Googolplex', " Skewe's Number"];
+
+    if(number < 1000000){
+        number = number.toLocaleString();
+        return number;
+    }
+
+    /// loop through the suffixes and divide the number by 1000 until it is less than 1000
+    for (let i = 0; i < suffixes.length; i++) {
+        const suffix = suffixes[i];
+        if (number >= 1000) {
+        number = number / 1000;
+        } else {
+        // return the number with the suffix
+        return `${number.toFixed(3)}${suffix}`;
+        }
+    }
+
+    // if the number is larger than the largest suffix, return it as is
+    return number;
+}
 
 function clicksFunctions(){ //initializes most of the onclicks and hovers
     $('#spaceship').click(function(ev){ //click on spaceship
@@ -462,14 +470,10 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             Credits -= CosmicClicksTotalCostMultiplied;
             CosmicClicks += purchaseAmount;
             CosmicClicksTotal = ((CosmicClicks * CosmicClicksValue) / 100) * globalProductionModifier;
-            let newpriceval = CosmicClicksPrice;
-            for (let i =0;i < purchaseAmount;i++){
-                newpriceval = ((newpriceval * CosmicClicksPriceMult)/100) * globalProductionModifier;
-            }
-            CosmicClicksPrice =  newpriceval;
+            CosmicClicksPrice = calculateNewItemPrice(CosmicClicksPrice,CosmicClicksPriceMult);
             updateCredsDisplay();
             updateCreditsPerSecond();
-            $(".cosmicclicksamt").html(CosmicClicks)
+            $(".cosmicclicksamt").html(formatNumber(CosmicClicks))
             updateTotalCost("cosmicclicks");
         }
     }) // end of on cosmicclickpurchase
@@ -479,14 +483,10 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             Credits -= CosmicOvensTotalCostMultiplied;
             CosmicOvens += purchaseAmount;
             CosmicOvensTotal = ((CosmicOvens * CosmicOvensValue) / 100) * globalProductionModifier;
-            let newpriceval = CosmicOvensPrice;
-            for (let i =0;i < purchaseAmount;i++){
-                newpriceval = ((newpriceval * CosmicOvensPriceMult)/100) * globalProductionModifier;
-            }
-            CosmicOvensPrice =  newpriceval;
+            CosmicOvensPrice =  calculateNewItemPrice(CosmicOvensPrice,CosmicOvensPriceMult);
             updateCredsDisplay();
             updateCreditsPerSecond();
-            $(".cosmicovenamt").html(CosmicOvens)
+            $(".cosmicovenamt").html(formatNumber(CosmicOvens))
             updateTotalCost("cosmicovens");
         }
     }) // end of on cosmic oven purchase
@@ -496,14 +496,10 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             Credits -= InterstellarMixersTotalCostMultiplied;
             InterstellarMixers += purchaseAmount;
             InterstellarMixersTotal = ((InterstellarMixers * InterstellarMixersValue) / 100) * globalProductionModifier;
-            let newpriceval = InterstellarMixersPrice;
-            for (let i =0;i < purchaseAmount;i++){
-                newpriceval = ((newpriceval * InterstellarMixersPriceMult)/100) * globalProductionModifier;
-            }
-            InterstellarMixersPrice =  newpriceval;
+            InterstellarMixersPrice =  calculateNewItemPrice(InterstellarMixersPrice,InterstellarMixersPriceMult);
             updateCredsDisplay();
             updateCreditsPerSecond();
-            $(".interstellarmixersamt").html(InterstellarMixers)
+            $(".interstellarmixersamt").html(formatNumber(InterstellarMixers))
             updateTotalCost("interstellarmixers")
         }
     }) // end of on interstellar mixer purchase
@@ -513,14 +509,10 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             Credits -= AsteroidMinersTotalCostMultiplied;
             AsteroidMiners += purchaseAmount;
             AsteroidMinersTotal = ((AsteroidMiners * AsteroidMinersValue) / 100) * globalProductionModifier;
-            let newpriceval = AsteroidMinersPrice;
-            for (let i =0;i < purchaseAmount;i++){
-                newpriceval = ((newpriceval * AsteroidMinersPriceMult)/100) * globalProductionModifier;
-            }
-            AsteroidMinersPrice =  newpriceval;
+            AsteroidMinersPrice =  calculateNewItemPrice(AsteroidMinersPrice,AsteroidMinersPriceMult);
             updateCredsDisplay();
             updateCreditsPerSecond();
-            $(".asteroidminersamt").html(AsteroidMiners)
+            $(".asteroidminersamt").html(formatNumber(AsteroidMiners))
             updateTotalCost("asteroidminers")
         }
     }) // end of on cosmic oven purchase
@@ -539,11 +531,10 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
             BUYMENUITEMHOVERINTERVAL = setInterval(() => {
                 varamt = eval($(this).data("varamt"));
                 varprice = eval($(this).data("price"));
-                if (varamt >= 1 || Credits >= (varprice / 2)){
+                if (varamt >= 1 || $(this).hasClass("unlockedItem")){
                     description = eval($(this).data("description"));
                     varval = eval($(this).data('varval'));
                     vartotal = eval($(this).data("vartotal"));
-                    vartotal = vartotal.toFixed(2);
                     varpercent = 100 * (vartotal / CreditsPerSecond);
                     varpercent = varpercent.toFixed(1);
                     totalprod = eval($(this).data("vartotalproduction"));
@@ -560,9 +551,9 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
                         $("#itemproducingtotal").show();
                     }
                     $("#itemdescription").html(`${description}`)
-                    $("#itemproducingamt").html(`Each ${$(this).data("name")} Produces ${varval} ₵REDITS per second`);
-                    $("#itemproducingpercent").html(`${varamt} ${$(this).data("name2")} producing ${vartotal} ₵REDITS per second, which is ${varpercent}% of total ₵REDITS production`);
-                    $("#itemproducingtotal").html(`Total ₵REDITS produced by ${$(this).data("name2")}: ${totalprod}`)
+                    $("#itemproducingamt").html(`Each ${$(this).data("name")} Produces ${formatNumber(varval)} ₵REDITS per second`);
+                    $("#itemproducingpercent").html(`${formatNumber(varamt)} ${$(this).data("name2")} producing ${formatNumber(vartotal)} ₵REDITS per second, which is ${varpercent}% of total ₵REDITS production`);
+                    $("#itemproducingtotal").html(`Total ₵REDITS produced by ${$(this).data("name2")}: ${formatNumber(totalprod)}`)
                 } else {
                     $("#itemdescription").html(`An unknown item, perhaps gaining more ₵REDITS will give new information`);
                     if ($("#itemproducingamt").hasClass("hidestatstxt") != true ){
