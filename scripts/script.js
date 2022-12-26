@@ -5,62 +5,46 @@
 var gameSave = null;
 var purchaseAmount = 1;
 
-var Credits = 0;
+var gameObj = {
+    Credits: 0,
 
-var CreditsPerSecond = 0; //total credits per second
+    CreditsPerSecond: 0, //total credits per second
 
-var totalCostReduction = 100; // if 100, user pays 100% of price
-var globalProductionModifier = 100; // adds extra % production if any
+    totalCostReduction: 100, // if 100, user pays 100% of price
+    globalProductionModifier: 100, // if 100, items produce 100% of their cps amount, higher = more, lower = less
+    
+    ClickValue: 1, // mouse click value
+    CreditsFromClicks: 0,
 
-var ClickValue = 1; // mouse click value
-var CreditsFromClicks = 0;
+    Items:[],
+    createItem: function(name,description,cps,price,pricemult, singularname,multiplename){
+        this[name] = {
+            "Name": name,
+            "Description": description, //description of said item
+            "TotalCreditsProduced": 0, //total amount of credits produced by said item
+            "Amount": 1, //amount of said item
+            "CPS": cps, //credits per second per item
+            "Price": price, //price of item
+            "TotalCPS": 0, // total credits per second combined (amount * cps)
+            "CPSMult": 1, // if 1, produces 100% of item CPS
+            "PriceMult": pricemult, // amount to increase price of item after each purchase
+            "TotalCostMultiplied": 0, //price multiplied by purchaseAmount variable
+            "SingularName": singularname,
+            "MultipleName": multiplename,
+        }
+        this[name]['TotalCPS'] = this[name]['Amount'] * (this[name]['CPS'] * this[name]['CPSMult']);
+        let totalCost = 0;
+        for (let i=0;i < purchaseAmount;i++){
+            totalCost += this[name]['Price'];
+            this[name]['Price'] *= this[name]['PriceMult'];
+        }
+        this[name]['TotalCostMultiplied'] = totalCost;
+        this.Items.push(this[name])
+    }
 
-var CosmicClicksDescription = "Cosmic Clicks allow you to tap into the power of the cosmos to increase ₵REDITS production";
-var CosmicClicksCredsProduced = 0; //total amount of credits produced by cosmic clicks
-var CosmicClicks = 0; //amount of cosmic clicks owned
-var CosmicClicksValue = 0.25; //amount of credits pre second per each cosmic click
-var CosmicClicksPrice = 10; // credit price of cosmic click
-var CosmicClicksTotal = CosmicClicks * CosmicClicksValue; //how many credits cosmic clicks are producing in total
-var CosmicClicksPriceMult = 1.151; // price goes up by 120% each purchase
-var CosmicClicksTotalCostMultiplied = 0; //price * purchaseAmount
+};
 
-var CosmicOvensDescription = "Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster";
-var CosmicOvensCredsProduced = 0;
-var CosmicOvens = 0;
-var CosmicOvensValue = 1;
-var CosmicOvensPrice = 100;
-var CosmicOvensTotal = CosmicOvens * CosmicOvensValue;
-var CosmicOvensPriceMult = 1.151;
-var CosmicOvensTotalCostMultiplied = 0;
-
-var InterstellarMixersDescription = "A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation";
-var InterstellarMixersCredsProduced = 0;
-var InterstellarMixers = 0;
-var InterstellarMixersValue = 10; // amt of creds / sec
-var InterstellarMixersPrice = 1150;
-var InterstellarMixersTotal = InterstellarMixers * InterstellarMixersValue;
-var InterstellarMixersPriceMult = 1.151;
-var InterstellarMixersTotalCostMultiplied = 0;
-
-var CosmicConveyorBeltsDescription = "A futuristic conveyor belt system that uses Warp Drive technology to transport ₵REDITS faster";
-var CosmicConveyorBeltsCredsProduced = 0;
-var CosmicConveyorBelts = 0;
-var CosmicConveyorBeltsValue = 100;
-var CosmicConveyorBeltsPrice = 4500;
-var CosmicConveyorBeltsTotal = CosmicConveyorBelts * CosmicConveyorBeltsValue;
-var CosmicConveyorBeltsPriceMult = 1.151;
-var CosmicConveyorBeltsTotalCostMultiplied = 0;
-
-var AsteroidMinersDescription = "An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production";
-var AsteroidMinersCredsProduced = 0;
-var AsteroidMiners = 0;
-var AsteroidMinersValue = 500;
-var AsteroidMinersPrice = 16000;
-var AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
-var AsteroidMinersPriceMult = 1.151;
-var AsteroidMinersTotalCostMultiplied = 0;
-
-//localStorage.clear(); //gamesave clearing for development purposes
+localStorage.clear(); //gamesave clearing for development purposes
 
 $(document).ready(function(){
     // Get the width of the buymenuwrap element
@@ -68,9 +52,22 @@ $(document).ready(function(){
     // Set the left property of the spaceshipwrap element based on the width of the buymenuwrap element
     document.getElementById("spaceshipwrap").style.left = `calc(63% - ${buymenuwrapWidth}px)`;
 
-    loadSaveData(); // loads game save if any
+    if(loadSaveData() != true){ // create game items if no game save exists using default values;
+        gameObj.createItem("cosmicclicks","Cosmic Clicks allow you to tap into the power of the cosmos to increase ₵REDITS production",0.25,10,1.151,"Cosmic Click", "Cosmic Clicks")
+        gameObj.createItem("cosmicovens","Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster",1,100,1.151,"Cosmic Oven", "Cosmic Ovens")
+        gameObj.createItem("interstellarmixers","A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation",10,1250,1.151,"Interstellar Mixer", "Interstellar Mixers")
+        gameObj.createItem("cosmicconveyorbelts","A futuristic conveyor belt system that uses Warp Drive technology to transport ₵REDITS faster",100,4500,1.151,"Cosmic Conveyor Belt", "Cosmic Conveyor Belts")
+        gameObj.createItem("asteroidminers","An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production",500,16150,1.151,"Asteroid Miner", "Asteroid Miners")
+        console.log("===STARTED GAME ASSUMING PLAYER HAD NO PREVIOUS SAVE===")
+        console.log(gameObj) //remove
+        addItemsToBuyMenu();
+    } else{ //succesfully loaded
+        console.log("===LOADED GAME SAVE!===")
+        console.log(gameObj) //remove
+        addItemsToBuyMenu();
+    }
 
-    if(Credits > 4){ // dont display clickme text if user already played
+    if(gameObj.Credits > 4){ // dont display clickme text if user already played
         $("#clickme").css("display", "none");
         $("#clickme").remove();
     }
@@ -90,168 +87,90 @@ $(document).ready(function(){
 }); //end doc onready
 
 function loadSaveData(){
-    if(localStorage.getItem("gameSave") != null || localStorage.getItem("gameSave") != undefined){
-        gameSave = JSON.parse(localStorage.getItem("gameSave"));
-        Credits = gameSave.credits;
-        CreditsPerSecond = gameSave.creditspersecond;
-        totalCostReduction = gameSave.totalcostreduction;
-        globalProductionModifier = gameSave.globalproductionmodifier; //creds and modifiers load
-
-        ClickValue = gameSave.clickvalue; //user click value load
-
-        //cosmic clicks loading
-        CosmicClicksCredsProduced = gameSave.cosmicclickscredsproduced;
-        CosmicClicks =  gameSave.cosmicclicks;
-        CosmicClicksValue = gameSave.cosmicclicksvalue;
-        CosmicClicksPrice = gameSave.cosmicclicksprice;
-        CosmicClicksTotal = CosmicClicks * CosmicClicksValue;
-        CosmicClicksPriceMult = gameSave.cosmicclickspricemult;
-
-        //cosmic oven loading
-        CosmicOvensCredsProduced = gameSave.cosmicovenscredsproduced;
-        CosmicOvens = gameSave.cosmicovens;
-        CosmicOvensValue = gameSave.cosmicovensvalue;
-        CosmicOvensPrice = gameSave.cosmicovensprice;
-        CosmicOvensTotal = CosmicOvens * CosmicOvensValue;
-        CosmicOvensPriceMult = gameSave.cosmicovenspricemult;
-
-        //interstellar mixer loading
-        InterstellarMixersCredsProduced = gameSave.interstellarmixerscredsproduced;
-        InterstellarMixers = gameSave.interstellarmixers;
-        InterstellarMixersValue = gameSave.interstellarmixersvalue;
-        InterstellarMixersPrice = gameSave.interstellarmixersprice;
-        InterstellarMixersTotal = InterstellarMixers * InterstellarMixersValue;
-        InterstellarMixersPriceMult = gameSave.interstellarmixerspricemult;
-
-        //cosmic conveyor belts loading
-        CosmicConveyorBeltsCredsProduced = gameSave.cosmicconveyorbeltscredsproduced ??= 0;
-        CosmicConveyorBelts = gameSave.cosmicconveyorbelts ??= 0;
-        CosmicConveyorBeltsValue = gameSave.cosmicconveyorbeltsvalue ??= 100;
-        CosmicConveyorBeltsPrice = gameSave.cosmicconveyorbeltsprice ??= 4500;
-        CosmicConveyorBeltsTotal = CosmicConveyorBelts * CosmicConveyorBeltsValue;
-        CosmicConveyorBeltsPriceMult = gameSave.cosmicconveyorbeltspricemult ??= 1.151;
-
-        //asteroid miners loading
-        AsteroidMinersCredsProduced = gameSave.asteroidminerscredsproduced ??= 0;
-        AsteroidMiners = gameSave.asteroidminers ??= 0;
-        AsteroidMinersValue = gameSave.asteroidminersvalue ??= 500;
-        AsteroidMinersPrice = gameSave.asteroidminersprice ??= 16000;
-        AsteroidMinersTotal = AsteroidMiners * AsteroidMinersValue;
-        AsteroidMinersPriceMult = gameSave.asteroidminerspricemult ??= 1.151;
-
+    if(localStorage.getItem("gameObj") != null || localStorage.getItem("gameObj") != undefined){
+        gameObj = JSON.parse(localStorage.getItem("gameObj"))
+        return true
+    }else{
+        console.log("===ERROR DURING LOADING OF SAVE GAME DATA.===")
+        return false
     }
+    
 }
 
 function saveGameData(){
-    const gameSave = {
-        credits : Credits,
-        totalcostreduction: totalCostReduction,
-        creditspersecond: CreditsPerSecond,
-        globalproductionmodifier: globalProductionModifier, //personal save
+    localStorage.setItem("gameObj",JSON.stringify(gameObj));
+};
 
-        clickvalue : ClickValue, //user click value
+function addItemsToBuyMenu() { //4 (total items - 1)
+    for(let i = 0; i< gameObj.Items.length;i++){
+        let item = gameObj.Items[i];
 
-        //cosmic clicks saving
-        cosmicclickscredsproduced : CosmicClicksCredsProduced,
-        cosmicclicks : CosmicClicks,
-        cosmicclicksvalue : CosmicClicksValue,
-        cosmicclicksprice : CosmicClicksPrice,
-        cosmicclickspricemult : CosmicClicksPriceMult,
+        let buymenuitemdiv = $('<div>');
+        let buymenuiconwrap = $('<div>');
+        let img = $('<img>').attr('src',`./img/items/${item.Name}.png`)
+        let buymenutxt = $('<p>');
+        let buymenutxt2 = $('<p>');
 
-        //cosmic oven saving
-        cosmicovenscredsproduced : CosmicOvensCredsProduced,
-        cosmicovens : CosmicOvens,
-        cosmicovensvalue : CosmicOvensValue,
-        cosmicovensprice : CosmicOvensPrice,
-        cosmicovenspricemult : CosmicOvensPriceMult,
+        if(i==0){
+            buymenuitemdiv.addClass("unlockedItem");
+        }
+        buymenuitemdiv.addClass('buymenuitem')
+        buymenuitemdiv.attr('id', item.Name);
 
-        //interstellar mixer saving
-        interstellarmixerscredsproduced : InterstellarMixersCredsProduced,
-        interstellarmixers : InterstellarMixers,
-        interstellarmixersvalue : InterstellarMixersValue,
-        interstellarmixersprice : InterstellarMixersPrice,
-        interstellarmixerspricemult : InterstellarMixersPriceMult,
+        buymenuiconwrap.addClass("buymenuiconwrap");
+        buymenuiconwrap.addClass(`${item.Name + "imgwrap"}`);
 
-        //cosmic conveyor belt saving
-        cosmicconveyorbeltscredsproduced : CosmicConveyorBeltsCredsProduced, 
-        cosmicconveyorbelts : CosmicConveyorBelts,
-        cosmicconveyorbeltsvalue : CosmicConveyorBeltsValue,
-        cosmicconveyorbeltsprice : CosmicConveyorBeltsPrice,
-        cosmicconveyorbeltspricemult: CosmicConveyorBeltsPriceMult,
+        img.attr('draggable',false);
+        img.addClass('buymenuimg');
+        img.addClass(`${item.Name}`);
 
-        //asteroid miner saving
-        asteroidminerscredsproduced : AsteroidMinersCredsProduced, 
-        asteroidminers : AsteroidMiners,
-        asteroidminersvalue : AsteroidMinersValue,
-        asteroidminersprice : AsteroidMinersPrice,
-        asteroidminerspricemult: AsteroidMinersPriceMult,
+        buymenutxt.addClass('buymenutxt');
+        buymenutxt2.addClass('buymenutxt2');
+
+        buymenutxt.html(`${item.Name}`)
+        buymenutxt2.html(`price: `)
+
+        buymenuitemdiv.append(buymenuiconwrap);
+        buymenuiconwrap.append(img);
+        buymenuitemdiv.append(buymenutxt);
+        buymenuitemdiv.append(buymenutxt2);
+
+
+        $("#buymenuwrap").append(buymenuitemdiv);
     }
-    localStorage.setItem("gameSave",JSON.stringify(gameSave));
 };
 
 function updateCredsDisplay(){ //updates text
-    $("#credits").html(formatNumber(Credits));
-    $("#creditspersecond").html(formatNumber(CreditsPerSecond))
+    $("#credits").html(formatNumber(gameObj.Credits));
+    $("#creditspersecond").html(formatNumber(gameObj.CreditsPerSecond))
 }
 
 function updateCreditsPerSecond(){
     let val = 0;
-    //cosmic clicks
-    val += CosmicClicksTotal;
-    val += CosmicOvensTotal;
-    val += InterstellarMixersTotal;
-    val += AsteroidMinersTotal;
-    val += CosmicConveyorBeltsTotal;
+    for(let i = 0; i< gameObj.Items.length;i++){
+        let item = gameObj.Items[i];
+        val += item.TotalCPS;
+    }
+    gameObj.CreditsPerSecond = val;
 
-    CreditsPerSecond = val;
-
-    document.title = `₵REDITS: ${formatNumber(Credits)} | Cosmic Capital`;
+    document.title = `₵REDITS: ${formatNumber(gameObj.Credits)} | Cosmic Capital`;
 }
 
-var calc = 0; //calc variable
-var cctots = 0; //cosmic clicks adder until above 1.0
-var cotots = 0; //cosmic oven adders until above 1.0
+var addCredsCounter = 0; // keep track of accumulated value
 function addCreds(){
-        //cosmic clicks
-        calc = 0;
-        calc = CosmicClicksTotal / 10;
-        cctots += calc;
-        if (cctots >= 1.00)  {
-            cctots = Math.round(cctots);
-            Credits += cctots;
-            CosmicClicksCredsProduced += cctots;
-            cctots = 0;
+        let valueToAdd = gameObj.CreditsPerSecond / 10;
+        if (valueToAdd < 1){
+            addCredsCounter += valueToAdd;
+        } else{
+            gameObj.Credits += Math.floor(valueToAdd);
+            addCredsCounter += valueToAdd - Math.floor(valueToAdd);
+            console.log(valueToAdd - Math.floor(valueToAdd))
         }
-        //cosmic ovens
-        calc = 0;
-        calc = CosmicOvensTotal / 10;
-        cotots += calc;
-        if (cotots >= 1.00){
-            cotots = Math.round(cotots);
-            Credits += cotots;
-            CosmicOvensCredsProduced += cotots;
-            cotots = 0;
+
+        if(addCredsCounter >=1){
+            Credits += Math.floor(addCredsCounter)
+            counter -= Math.floor(counter);
         }
-        //interstellar mixers
-        calc = 0;
-        calc = InterstellarMixersTotal / 10; // no need for adding as it will always be above 1
-        calc = Math.round(calc)
-        Credits += calc;
-        InterstellarMixersCredsProduced += calc;
-
-        // asteroid miners
-        calc = 0;
-        calc = AsteroidMinersTotal / 10;
-        calc = Math.round(calc)
-        Credits += calc;
-        AsteroidMinersCredsProduced += calc;
-
-        // cosmic conveyor belts
-        calc = 0;
-        calc = CosmicConveyorBeltsTotal / 10;
-        calc = Math.round(calc)
-        Credits += calc;
-        CosmicConveyorBeltsCredsProduced += calc;
 };
 
 function oneSecondLoop(){ //animates the keyframes for spaceship
@@ -530,7 +449,7 @@ function spaceShipClickEffect(item,event){
         }, 50);
 
         // remove click me text after hitting 5 credits
-        if($("#clickme").css("display") == "block" && Credits >= 4){
+        if($("#clickme").css("display") == "block" && gameObj.Credits >= 4){
             $("#clickme").css("opacity", "0");
             setTimeout(() => {
                 $("#clickme").css("display", "none");
@@ -540,7 +459,7 @@ function spaceShipClickEffect(item,event){
         }
 
     // Create the floating div
-    const floatingDiv = $('<div>').attr('id', 'floating-div').html(`<p>+${formatNumber(ClickValue)} ₵REDITS</p>`);
+    const floatingDiv = $('<div>').attr('id', 'floating-div').html(`<p>+${formatNumber(gameObj.ClickValue)} ₵REDITS</p>`);
     floatingDiv.addClass("txt")
     // Position the floating div at the location of the mouse click
     $('body').append(floatingDiv);
@@ -563,12 +482,11 @@ function spaceShipClickEffect(item,event){
 
 function clicksFunctions(){ //initializes most of the onclicks and hovers
     $('#spaceship').click(function(ev){ //click on spaceship
-
         spaceShipClickEffect(this,ev);
 
         //add credits
-        Credits += ClickValue; //adds creds probably need to account for multipliers too
-        CreditsFromClicks += ClickValue; //add total amount produced
+        gameObj.Credits += gameObj.ClickValue; //adds creds probably need to account for multipliers too
+        gameObj.CreditsFromClicks += gameObj.ClickValue; //add total amount produced
         updateCredsDisplay();
     }) // end of on spaceshipclick
 
