@@ -122,6 +122,7 @@ function loadSaveData(){
         //check for users old save
         if(localStorage.getItem("gameSave") != null || localStorage.getItem("gameSave") != undefined){
             gameSave = JSON.parse(localStorage.getItem("gameSave"));
+            console.log("===WELCOME BACK PARADOX :D")
         }
         return false
     }
@@ -133,7 +134,7 @@ function saveGameData(){
 
 function addItemsToBuyMenu() { 
     if (gameObj.Items.length < itemsToCreate.length){
-        console.log("===OLD SAVE DETECTED HELLO PARADOX :D==");
+        console.log("===OLD SAVE DETECTED==");
     }
     for(let i = 0; i< gameObj.Items.length;i++){
         let item = gameObj.Items[i];
