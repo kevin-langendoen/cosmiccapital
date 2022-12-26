@@ -6,45 +6,81 @@ var gameSave = null;
 var purchaseAmount = 1;
 
 var gameObj = {
-    Credits: 0,
+    Credits:0,
 
     CreditsPerSecond: 0, //total credits per second
 
-    totalCostReduction: 100, // if 100, user pays 100% of price
-    globalProductionModifier: 100, // if 100, items produce 100% of their cps amount, higher = more, lower = less
+    totalCostReduction: 1, // if 1, user pays 100% of price, lower = user pays less, higher user pays more
+    globalProductionModifier: 1, // if 1, items produce 100% of their cps amount, higher = more, lower = less
     
     ClickValue: 1, // mouse click value
     CreditsFromClicks: 0,
 
     Items:[],
+
+    updatePrice: function(item){
+        let price = item['Price'];
+        for (let i=0;i < purchaseAmount;i++){
+            price *= item["PriceMult"];
+            price *= item['PriceReduction'];
+            price *= this.totalCostReduction
+        };
+        item['Price'] = Math.round(price);
+        return price;
+    },
+
+    updateTotalCost: function(item){
+        let totalCost = 0;
+        let price = item['Price'];
+        for(let i=0;i<purchaseAmount;i++){
+            totalCost += price;
+            price *= item['PriceMult'];
+            price *= item['PriceReduction']
+            price *= this.totalCostReduction;
+        }
+        //item['Price'] = Math.round(item['Price'])
+        item['TotalCostMultiplied'] = Math.round(totalCost);
+    },
+
+    updateTotalCPS: function(item){
+        item.TotalCPS = item.Amount * (item.CPS * item.CPSMult) * this.globalProductionModifier;
+    },
+
     createItem: function(name,description,cps,price,pricemult, singularname,multiplename){
-        this[name] = {
+        const item = {
             "Name": name,
             "Description": description, //description of said item
             "TotalCreditsProduced": 0, //total amount of credits produced by said item
-            "Amount": 1, //amount of said item
+            "Amount": 0, //amount of said item
             "CPS": cps, //credits per second per item
             "Price": price, //price of item
             "TotalCPS": 0, // total credits per second combined (amount * cps)
             "CPSMult": 1, // if 1, produces 100% of item CPS
             "PriceMult": pricemult, // amount to increase price of item after each purchase
+            "PriceReduction": 1, //if 1 user pays 100% of item value
             "TotalCostMultiplied": 0, //price multiplied by purchaseAmount variable
             "SingularName": singularname,
             "MultipleName": multiplename,
         }
-        this[name]['TotalCPS'] = this[name]['Amount'] * (this[name]['CPS'] * this[name]['CPSMult']);
-        let totalCost = 0;
-        for (let i=0;i < purchaseAmount;i++){
-            totalCost += this[name]['Price'];
-            this[name]['Price'] *= this[name]['PriceMult'];
-        }
-        this[name]['TotalCostMultiplied'] = totalCost;
-        this.Items.push(this[name])
-    }
+        this.updateTotalCPS(item);
+
+        this.updateTotalCost(item);
+
+        this.Items.push(item);
+    },
 
 };
 
-localStorage.clear(); //gamesave clearing for development purposes
+//localStorage.clear(); //gamesave clearing for development purposes
+
+var itemsToCreate = [
+    function(){gameObj.createItem("cosmicclicks","Cosmic Clicks allow you to tap into the power of the cosmos to increase ₵REDITS production",0.25,10,1.151,"Cosmic Click", "Cosmic Clicks");},
+    function(){gameObj.createItem("cosmicovens","Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster",1,100,1.151,"Cosmic Oven", "Cosmic Ovens");},
+    function(){gameObj.createItem("interstellarmixers","A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation",10,1250,1.151,"Interstellar Mixer", "Interstellar Mixers");},
+    function(){gameObj.createItem("cosmicconveyorbelts","A futuristic conveyor belt system that uses Warp Drive technology to transport ₵REDITS faster",100,4500,1.151,"Cosmic Conveyor Belt", "Cosmic Conveyor Belts");},
+    function(){gameObj.createItem("asteroidminers","An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production",500,16150,1.151,"Asteroid Miner", "Asteroid Miners");},
+    function(){gameObj.createItem("asteroidminers","An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production",500,16150,1.151,"Asteroid Miner", "Asteroid Miners");},
+] 
 
 $(document).ready(function(){
     // Get the width of the buymenuwrap element
@@ -53,17 +89,13 @@ $(document).ready(function(){
     document.getElementById("spaceshipwrap").style.left = `calc(63% - ${buymenuwrapWidth}px)`;
 
     if(loadSaveData() != true){ // create game items if no game save exists using default values;
-        gameObj.createItem("cosmicclicks","Cosmic Clicks allow you to tap into the power of the cosmos to increase ₵REDITS production",0.25,10,1.151,"Cosmic Click", "Cosmic Clicks")
-        gameObj.createItem("cosmicovens","Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster",1,100,1.151,"Cosmic Oven", "Cosmic Ovens")
-        gameObj.createItem("interstellarmixers","A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation",10,1250,1.151,"Interstellar Mixer", "Interstellar Mixers")
-        gameObj.createItem("cosmicconveyorbelts","A futuristic conveyor belt system that uses Warp Drive technology to transport ₵REDITS faster",100,4500,1.151,"Cosmic Conveyor Belt", "Cosmic Conveyor Belts")
-        gameObj.createItem("asteroidminers","An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production",500,16150,1.151,"Asteroid Miner", "Asteroid Miners")
+        for (let i = 0; i < itemsToCreate.length; i++) {
+            itemsToCreate[i]();
+        }
         console.log("===STARTED GAME ASSUMING PLAYER HAD NO PREVIOUS SAVE===")
-        console.log(gameObj) //remove
         addItemsToBuyMenu();
     } else{ //succesfully loaded
         console.log("===LOADED GAME SAVE!===")
-        console.log(gameObj) //remove
         addItemsToBuyMenu();
     }
 
@@ -77,12 +109,7 @@ $(document).ready(function(){
     }
 
     clicksFunctions(); //initializes hover effects and onclick functions
-    oneSecondLoop(); //starts 1 second loop
-    tenthSecondLoop(); // starts .1 second loop
-    fifteenSecondLoop(); // 15 second loop for automatic game saving
-
-    //make into button toggle
-    updateTotalCost();
+    startLoops();
 
 }); //end doc onready
 
@@ -91,17 +118,23 @@ function loadSaveData(){
         gameObj = JSON.parse(localStorage.getItem("gameObj"))
         return true
     }else{
-        console.log("===ERROR DURING LOADING OF SAVE GAME DATA.===")
+        console.log("===ERROR DURING LOADING OF SAVE GAME DATA.===");
+        //check for users old save
+        if(localStorage.getItem("gameSave") != null || localStorage.getItem("gameSave") != undefined){
+            gameSave = JSON.parse(localStorage.getItem("gameSave"));
+        }
         return false
     }
-    
 }
 
 function saveGameData(){
     localStorage.setItem("gameObj",JSON.stringify(gameObj));
 };
 
-function addItemsToBuyMenu() { //4 (total items - 1)
+function addItemsToBuyMenu() { 
+    if (gameObj.Items.length < itemsToCreate.length){
+        console.log("===OLD SAVE DETECTED HELLO PARADOX :D==");
+    }
     for(let i = 0; i< gameObj.Items.length;i++){
         let item = gameObj.Items[i];
 
@@ -111,11 +144,23 @@ function addItemsToBuyMenu() { //4 (total items - 1)
         let buymenutxt = $('<p>');
         let buymenutxt2 = $('<p>');
 
+        buymenutxt.addClass('buymenutxt');
+        buymenutxt2.addClass('buymenutxt2');
+
+        buymenutxt.html(`${item.MultipleName}: ${formatNumber(item.Amount)}`)
+        buymenutxt2.html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`)
+
         if(i==0){
             buymenuitemdiv.addClass("unlockedItem");
         }
         buymenuitemdiv.addClass('buymenuitem')
         buymenuitemdiv.attr('id', item.Name);
+
+        if(item.Amount < 1 && gameObj.Credits < (item.Price / 2) && i != 0){
+            buymenuitemdiv.addClass('hidebuymenuitem')
+            buymenutxt.html('???')
+            buymenutxt2.html('???')
+        }
 
         buymenuiconwrap.addClass("buymenuiconwrap");
         buymenuiconwrap.addClass(`${item.Name + "imgwrap"}`);
@@ -124,11 +169,6 @@ function addItemsToBuyMenu() { //4 (total items - 1)
         img.addClass('buymenuimg');
         img.addClass(`${item.Name}`);
 
-        buymenutxt.addClass('buymenutxt');
-        buymenutxt2.addClass('buymenutxt2');
-
-        buymenutxt.html(`${item.Name}`)
-        buymenutxt2.html(`price: `)
 
         buymenuitemdiv.append(buymenuiconwrap);
         buymenuiconwrap.append(img);
@@ -156,25 +196,35 @@ function updateCreditsPerSecond(){
     document.title = `₵REDITS: ${formatNumber(gameObj.Credits)} | Cosmic Capital`;
 }
 
-var addCredsCounter = 0; // keep track of accumulated value
-function addCreds(){
-        let valueToAdd = gameObj.CreditsPerSecond / 10;
-        if (valueToAdd < 1){
-            addCredsCounter += valueToAdd;
+function addCreds() {
+    for (let i = 0; i < gameObj.Items.length; i++) {
+        let item = gameObj.Items[i];
+        let totalCPS = item.TotalCPS / 10;
+        if (totalCPS < 1.0){
+            if (!gameObj.hasOwnProperty(`${item.Name}Remainder`)) {
+                gameObj[`${item.Name}Remainder`] = 0;
+            }
+            gameObj[`${item.Name}Remainder`] += totalCPS;
+
+            if(gameObj[`${item.Name}Remainder`] >= 1.0){
+                let val = Math.round(gameObj[`${item.Name}Remainder`]);
+                item.TotalCreditsProduced += val;
+                gameObj.Credits += val;
+                gameObj[`${item.Name}Remainder`] -= val;
+            }
         } else{
-            gameObj.Credits += Math.floor(valueToAdd);
-            addCredsCounter += valueToAdd - Math.floor(valueToAdd);
-            console.log(valueToAdd - Math.floor(valueToAdd))
-        }
+            if (isFinite(totalCPS)){
+                item.TotalCreditsProduced += Math.round(totalCPS)
+                gameObj.Credits += Math.round(totalCPS)
+            }
 
-        if(addCredsCounter >=1){
-            Credits += Math.floor(addCredsCounter)
-            counter -= Math.floor(counter);
         }
-};
+    }
+}
 
-function oneSecondLoop(){ //animates the keyframes for spaceship
+function startLoops(){
     var imgCount = 2;
+    // 1 second
     setInterval(() => {
         $("#spaceship").attr('src', `./img/Main-Ship/mainshipbasefullhp${imgCount}.png`);
         if(imgCount < 4){
@@ -182,113 +232,53 @@ function oneSecondLoop(){ //animates the keyframes for spaceship
         } else{
             imgCount = 2;
         }
-        updateCreditsPerSecond();
+        updateCreditsPerSecond(); //txt updates
     }, 1000);
-}
-
-function tenthSecondLoop(){
+    // 0.1 of a second
     setInterval(() => {
         checkBuyableBorder();
         addCreds();
         updateCredsDisplay();
     }, 100);
-}
-
-function fifteenSecondLoop(){
+    //15 seconds
     setInterval(() => {
         saveGameData();// saving gamestate every 10 seconds
     }, 15000);
 }
 
 function checkBuyableBorder(){
-    if (Credits >= CosmicClicksTotalCostMultiplied ){
-        $(".cosmicclicksimgwrap").css("border-color", "rgb(166, 32, 255)")
-    } else{
-       if($(".cosmicclicksimgwrap").css("border-color") != "rgb(56, 0, 94)"){
-            $(".cosmicclicksimgwrap").css("border-color", "rgb(56, 0, 94)")
-       }
-    }
-    //cosmic ovens
-    if (CosmicOvens < 1 && Credits < (CosmicOvensPrice / 2) && $("#buymenu2").hasClass("unlockedItem") == false)
-    {
-        $("#buymenu2").addClass("hidebuymenuitem")
-        $("#buymenu2").children("p").html("???")
-    } else if ( $("#buymenu2").hasClass("hidebuymenuitem") ){
-        $("#buymenu2").removeClass("hidebuymenuitem");
-        $("#buymenu2").addClass("unlockedItem");
-        $("#buymenu2").children(".buymenutxt").html(`Cosmic Ovens: <var class="buymenuvartxt cosmicovenamt">${CosmicOvens}</var>`)
-        $("#buymenu2").children(".buymenutxt2").html(`Cost: <var id="cosmicovensprice" class="buymenuvartxt">${formatNumber(CosmicOvensTotalCostMultiplied)}</var> ₵REDITS`)
-    }
-    if (Credits >= CosmicOvensTotalCostMultiplied){
-        $(".cosmicovensimgwrap").css("border-color", "rgb(166, 32, 255)")
-    }else{
-        if($(".cosmicovensimgwrap").css("border-color") != "rgb(56, 0, 94)"){
-            $(".cosmicovensimgwrap").css("border-color", "rgb(56, 0, 94)")
-       }
-    } 
-    //interstellarmixers
-    if (InterstellarMixers < 1 && Credits < (InterstellarMixersPrice / 2) && $("#buymenu3").hasClass("unlockedItem") == false)
-    {
-        $("#buymenu3").addClass("hidebuymenuitem")
-        $("#buymenu3").children("p").html("???")
-    } else if ($("#buymenu3").hasClass("hidebuymenuitem")){
-        $("#buymenu3").removeClass("hidebuymenuitem");
-        $("#buymenu3").addClass("unlockedItem");
-        $("#buymenu3").children(".buymenutxt").html(`Interstellar Mixers: <var class="buymenuvartxt interstellarmixersamt">${InterstellarMixers}</var>`);
-        $("#buymenu3").children(".buymenutxt2").html(`Cost: <var id="interstellarmixersprice" class="buymenuvartxt">${formatNumber(InterstellarMixersTotalCostMultiplied)}</var> ₵REDITS`)
-    }
-    if (Credits >= InterstellarMixersTotalCostMultiplied){
-        $(".interstellarmixersimgwrap").css("border-color", "rgb(166, 32, 255)")
-    }else{
-        if($(".interstellarmixersimgwrap").css("border-color") != "rgb(56, 0, 94)"){
-            $(".interstellarmixersimgwrap").css("border-color", "rgb(56, 0, 94)")
-       }
-    }
-    //cosmic conveyor belts
-    if (CosmicConveyorBelts < 1 && Credits < (CosmicConveyorBeltsPrice / 2) && $("#buymenu4").hasClass("unlockedItem") == false)
-    {
-        $("#buymenu4").addClass("hidebuymenuitem");
-        $("#buymenu4").children("p").html("???");
-    } else if ($("#buymenu4").hasClass("hidebuymenuitem" )){
-        $("#buymenu4").removeClass("hidebuymenuitem");
-        $("#buymenu4").addClass("unlockedItem");
-        $("#buymenu4").children(".buymenutxt").html(`Cosmic Conveyor Belts: <var class="buymenuvartxt cosmicconveyorbeltsamt">${CosmicConveyorBelts}</var>`)
-        $("#buymenu4").children(".buymenutxt2").html(`Cost: <var id="cosmicconveyorbeltsprice" class="buymenuvartxt">${formatNumber(CosmicConveyorBeltsTotalCostMultiplied)}</var> ₵REDITS`)
-    }
-    if (Credits >= CosmicConveyorBeltsTotalCostMultiplied){
-        $(".cosmicconveyorbeltsimgwrap").css("border-color", "rgb(166, 32, 255)")
-    }else{
-        if($(".cosmicconveyorbeltsimgwrap").css("border-color") != "rgb(56, 0, 94)"){
-            $(".cosmicconveyorbeltsimgwrap").css("border-color", "rgb(56, 0, 94)")
-       }
-    }
-    //asteroid miners
-    if (AsteroidMiners < 1 && Credits < (AsteroidMinersPrice / 2) && $("#buymenu5").hasClass("unlockedItem") == false)
-    {
-        $("#buymenu5").addClass("hidebuymenuitem");
-        $("#buymenu5").children("p").html("???");
-    } else if ($("#buymenu5").hasClass("hidebuymenuitem" )){
-        $("#buymenu5").removeClass("hidebuymenuitem");
-        $("#buymenu5").addClass("unlockedItem");
-        $("#buymenu5").children(".buymenutxt").html(`Asteroid Miners: <var class="buymenuvartxt asteroidminersamt">${AsteroidMiners}</var>`)
-        $("#buymenu5").children(".buymenutxt2").html(`Cost: <var id="asteroidminersprice" class="buymenuvartxt">${formatNumber(AsteroidMinersTotalCostMultiplied)}</var> ₵REDITS`)
-    }
-    if (Credits >= AsteroidMinersTotalCostMultiplied){
-        $(".asteroidminersimgwrap").css("border-color", "rgb(166, 32, 255)")
-    }else{
-        if($(".asteroidminersimgwrap").css("border-color") != "rgb(56, 0, 94)"){
-            $(".asteroidminersimgwrap").css("border-color", "rgb(56, 0, 94)")
-       }
-    }
-}
+    for(let i = 0; i< gameObj.Items.length;i++){
+        let item = gameObj.Items[i];
+        if(i == 0){
+            if(gameObj.Credits >= item.TotalCostMultiplied){
+                $(`.${item.Name}imgwrap`).css("border-color", "rgb(166, 32, 255)")
+            } else{
+                if($(`.${item.Name}imgwrap`).css("border-color") != "rgb(56, 0, 94)"){
+                    $(`.${item.Name}imgwrap`).css("border-color", "rgb(56, 0, 94)")
+               }
+            }
+        } else{ //if i higher than 0 since we dont want to hide cosmic clicks ever
+            if(gameObj.Credits >= item.TotalCostMultiplied){
+                $(`.${item.Name}imgwrap`).css("border-color", "rgb(166, 32, 255)")
+            } else{
+                if($(`.${item.Name}imgwrap`).css("border-color") != "rgb(56, 0, 94)"){
+                    $(`.${item.Name}imgwrap`).css("border-color", "rgb(56, 0, 94)")
+               }
+            }
+            if( item.Amount < 1 && gameObj.Credits < (item.Price / 2) && !$(`#${item.Name}`).hasClass("unlockedItem")){
+                $(`#${item.Name}`).addClass("hidebuymenuitem");
+                $(`#${item.Name}`).children("p").html("???");
+            } else{
+                if (!$(`#${item.Name}`).hasClass("unlockedItem")){
+                    $(`#${item.Name}`).removeClass("hidebuymenuitem");
+                    $(`#${item.Name}`).addClass("unlockedItem");
+                    $(`#${item.Name}`).children(".buymenutxt").html(`${item.MultipleName}: ${formatNumber(item.Amount)}`);
+                    $(`#${item.Name}`).children(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
+                }
 
-function isBuyable(item){
-    let itemprice = eval(item)
-    if(Credits >= itemprice){
-        return true
-    } else{
-        return false
-    }
+            }
+        }
+    };
 }
 
 function highlightPurchaseAmount(btn){
@@ -299,118 +289,64 @@ function highlightPurchaseAmount(btn){
         case 1:
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 1;
-            updateTotalCost();
+            gameObj.Items.forEach(function(item){
+                gameObj.updateTotalCost(item);
+                if($(`#${item.Name}`).hasClass("unlockedItem")){
+                    $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
+                };
+            });
             break;
         case 5:
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 5;
-            updateTotalCost();
+            gameObj.Items.forEach(function(item){
+                gameObj.updateTotalCost(item);
+                if($(`#${item.Name}`).hasClass("unlockedItem")){
+                    $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
+                };
+            });
             break;
         case 10:
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 10;
-            updateTotalCost();
+            gameObj.Items.forEach(function(item){
+                gameObj.updateTotalCost(item);
+                if($(`#${item.Name}`).hasClass("unlockedItem")){
+                    $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
+                };
+            });
             break;
         case 50:
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 50;
-            updateTotalCost();
+            gameObj.Items.forEach(function(item){
+                gameObj.updateTotalCost(item);
+                if($(`#${item.Name}`).hasClass("unlockedItem")){
+                    $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
+                };
+            });
             break;
         case 100:
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 100;
-            updateTotalCost();
+            gameObj.Items.forEach(function(item){
+                gameObj.updateTotalCost(item);
+                if($(`#${item.Name}`).hasClass("unlockedItem")){
+                    $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
+                };
+            });
             break;
         default:
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 1;
-            updateTotalCost();
+            gameObj.Items.forEach(function(item){
+                gameObj.updateTotalCost(item);
+                if($(`#${item.Name}`).hasClass("unlockedItem")){
+                    $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
+                };
+            });
             break;
     }
-}
-
-function updateTotalCost(name){
-    let price = 0;
-    let totalcost = 0;
-    switch(name){
-        case "cosmicclicks":
-            CosmicClicksTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(CosmicClicksPrice,CosmicClicksPriceMult);
-            $("#cosmicclicksprice").html(formatNumber(CosmicClicksTotalCostMultiplied));
-            break;
-        
-        case "cosmicovens":
-            CosmicOvensTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(CosmicOvensPrice,CosmicOvensPriceMult);
-            $("#cosmicovensprice").html(formatNumber(CosmicOvensTotalCostMultiplied));
-            break;
-
-        case "interstellarmixers":
-            InterstellarMixersTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(InterstellarMixersPrice,InterstellarMixersPriceMult);
-            $("#interstellarmixersprice").html(formatNumber(InterstellarMixersTotalCostMultiplied));
-            break;
-
-        case "cosmicconveyorbelts":
-            CosmicConveyorBeltsTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(CosmicConveyorBeltsPrice,CosmicConveyorBeltsPriceMult);
-            $("#cosmicconveyorbeltsprice").html(formatNumber(CosmicConveyorBeltsTotalCostMultiplied));
-            break;
-
-        case "asteroidminers":
-            AsteroidMinersTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(AsteroidMinersPrice,AsteroidMinersPriceMult);
-            $("#asteroidminersprice").html(formatNumber(AsteroidMinersTotalCostMultiplied));
-            break;
-
-        default:
-            CosmicClicksTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(CosmicClicksPrice,CosmicClicksPriceMult);
-            $("#cosmicclicksprice").html(formatNumber(CosmicClicksTotalCostMultiplied));
-            $(".cosmicclicksamt").html(formatNumber(CosmicClicks));
-
-            //cosmic oven
-            CosmicOvensTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(CosmicOvensPrice,CosmicOvensPriceMult);
-            $("#cosmicovensprice").html(formatNumber(CosmicOvensTotalCostMultiplied));
-            $(".cosmicovenamt").html(formatNumber(CosmicOvens));
-
-            //interstellar mixer
-            InterstellarMixersTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(InterstellarMixersPrice,InterstellarMixersPriceMult);
-            $("#interstellarmixersprice").html(formatNumber(InterstellarMixersTotalCostMultiplied));
-            $(".interstellarmixersamt").html(formatNumber(InterstellarMixers));
-
-            //cosmic conveyor belts
-            CosmicConveyorBeltsTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(CosmicConveyorBeltsPrice,CosmicConveyorBeltsPriceMult);
-            $("#cosmicconveyorbeltsprice").html(formatNumber(CosmicConveyorBeltsTotalCostMultiplied));
-            $(".cosmicconveyorbeltsamt").html(formatNumber(CosmicConveyorBelts));
-
-            //asteroid miner
-            AsteroidMinersTotalCostMultiplied = calculateTotalCostFromPurchaseAmount(AsteroidMinersPrice,AsteroidMinersPriceMult);
-            $("#asteroidminersprice").html(formatNumber(AsteroidMinersTotalCostMultiplied));
-            $(".asteroidminersamt").html(formatNumber(AsteroidMiners));
-    }
-
-};
-
-function calculateTotalCostFromPurchaseAmount(itemPrice,itemPriceMult){
-    let price = itemPrice;
-    let totalcost = 0;
-    for (let i=0;i< purchaseAmount;i++){
-        if(i==0){
-            price = itemPrice;
-            totalcost += price;
-        } else {
-            price = ((price * itemPriceMult)/100) * totalCostReduction;
-            totalcost += price;
-        }
-    };
-    totalcost = Math.round(totalcost);
-    return totalcost;
-}
-
-function calculateNewItemPrice(itemPrice,itemPriceMult){
-    let price = itemPrice;
-    let totalcost = 0;
-    for (let i=0;i< purchaseAmount;i++){
-            price = ((price * itemPriceMult)/100) * totalCostReduction;
-            totalcost += price;
-    };
-    price = Math.round(price);
-    return price;
 }
 
 function formatNumber(number) {
@@ -423,6 +359,8 @@ function formatNumber(number) {
     ' Untrigintillion', ' Duotrigintillion', ' Googol', " Skewer's Number", ' Centillion', ' Googolplex', " Skewe's Number"];
 
     if(number < 1000000){
+        number = number.toFixed(2);
+        number = parseFloat(number);
         number = number.toLocaleString();
         return number;
     }
@@ -434,7 +372,7 @@ function formatNumber(number) {
         number = number / 1000;
         } else {
         // return the number with the suffix
-        return `${number.toFixed(3)}${suffix}`;
+        return `${number.toFixed(2)}${suffix}`;
         }
     }
 
@@ -488,136 +426,85 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
         gameObj.Credits += gameObj.ClickValue; //adds creds probably need to account for multipliers too
         gameObj.CreditsFromClicks += gameObj.ClickValue; //add total amount produced
         updateCredsDisplay();
-    }) // end of on spaceshipclick
+    }); // end of on spaceshipclick
 
-    $(".purchaseAmountBtn").click(function(ev){
+    $(".purchaseAmountBtn").click(function(ev){ //sets purchase amount higlighter
         highlightPurchaseAmount(this)
-    })
+    });
 
-    $(".buymenuiconwrap").click(function(ev){
-        let item = $(this).find('img').attr('id')
-        if(isBuyable(item)){
-            $(this).find('img').addClass("buymenuimg2");
-            setTimeout(() => {
-                $(this).find('img').removeClass("buymenuimg2");
-            }, 500);
-        }
-    })
+    for(let i = 0; i< gameObj.Items.length;i++){
+        let item = gameObj.Items[i];
+        $(`.${item.Name}imgwrap`).click(function(ev){
+            if (gameObj.Credits >= item.TotalCostMultiplied){
+                $(this).find('img').addClass('buymenuimg2');
+                setTimeout(() => {
+                    $(this).find('img').removeClass("buymenuimg2");
+                }, 500);
+                gameObj.Credits -= item.TotalCostMultiplied;
+                item.Amount += purchaseAmount;
+                gameObj.updateTotalCPS(item);
+                gameObj.updatePrice(item);
+                gameObj.updateTotalCost(item);
 
-    $('.cosmicclicksimgwrap').click(function(ev){ //click on spaceship
-        if(Credits >= CosmicClicksTotalCostMultiplied ){
-            Credits -= CosmicClicksTotalCostMultiplied;
-            CosmicClicks += purchaseAmount;
-            CosmicClicksTotal = ((CosmicClicks * CosmicClicksValue) / 100) * globalProductionModifier;
-            CosmicClicksPrice = calculateNewItemPrice(CosmicClicksPrice,CosmicClicksPriceMult);
-            updateCredsDisplay();
-            updateCreditsPerSecond();
-            $(".cosmicclicksamt").html(formatNumber(CosmicClicks))
-            updateTotalCost("cosmicclicks");
-        }
-    }) // end of on cosmicclickpurchase
+                $(this).parent().find(".buymenutxt").html(`${item.MultipleName}: ${formatNumber(item.Amount)}`);
+                $(this).parent().find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
+                updateCredsDisplay();
+                updateCreditsPerSecond();
 
-    $('.cosmicovensimgwrap').click(function(ev){ //click on spaceship
-        if(Credits >= CosmicOvensTotalCostMultiplied){
-            Credits -= CosmicOvensTotalCostMultiplied;
-            CosmicOvens += purchaseAmount;
-            CosmicOvensTotal = ((CosmicOvens * CosmicOvensValue) / 100) * globalProductionModifier;
-            CosmicOvensPrice =  calculateNewItemPrice(CosmicOvensPrice,CosmicOvensPriceMult);
-            updateCredsDisplay();
-            updateCreditsPerSecond();
-            $(".cosmicovenamt").html(formatNumber(CosmicOvens))
-            updateTotalCost("cosmicovens");
-        }
-    }) // end of on cosmic oven purchase
-
-    $('.interstellarmixersimgwrap').click(function(ev){ //click on spaceship
-        if(Credits >= InterstellarMixersTotalCostMultiplied){
-            Credits -= InterstellarMixersTotalCostMultiplied;
-            InterstellarMixers += purchaseAmount;
-            InterstellarMixersTotal = ((InterstellarMixers * InterstellarMixersValue) / 100) * globalProductionModifier;
-            InterstellarMixersPrice =  calculateNewItemPrice(InterstellarMixersPrice,InterstellarMixersPriceMult);
-            updateCredsDisplay();
-            updateCreditsPerSecond();
-            $(".interstellarmixersamt").html(formatNumber(InterstellarMixers))
-            updateTotalCost("interstellarmixers")
-        }
-    }) // end of on interstellar mixer purchase
-
-    $('.cosmicconveyorbeltsimgwrap').click(function(ev){ //click on spaceship
-        if(Credits >= CosmicConveyorBeltsTotalCostMultiplied){
-            Credits -= CosmicConveyorBeltsTotalCostMultiplied;
-            CosmicConveyorBelts += purchaseAmount;
-            CosmicConveyorBeltsTotal = ((CosmicConveyorBelts * CosmicConveyorBeltsValue) / 100) * globalProductionModifier;
-            CosmicConveyorBeltsPrice =  calculateNewItemPrice(CosmicConveyorBeltsPrice,CosmicConveyorBeltsPriceMult);
-            updateCredsDisplay();
-            updateCreditsPerSecond();
-            $(".cosmicconveyorbeltsamt").html(formatNumber(CosmicConveyorBelts))
-            updateTotalCost("cosmicconveyorbelts")
-        }
-    }) // end of on asteroid miner purchase
-
-    $('.asteroidminersimgwrap').click(function(ev){ //click on spaceship
-        if(Credits >= AsteroidMinersTotalCostMultiplied){
-            Credits -= AsteroidMinersTotalCostMultiplied;
-            AsteroidMiners += purchaseAmount;
-            AsteroidMinersTotal = ((AsteroidMiners * AsteroidMinersValue) / 100) * globalProductionModifier;
-            AsteroidMinersPrice =  calculateNewItemPrice(AsteroidMinersPrice,AsteroidMinersPriceMult);
-            updateCredsDisplay();
-            updateCreditsPerSecond();
-            $(".asteroidminersamt").html(formatNumber(AsteroidMiners))
-            updateTotalCost("asteroidminers")
-        }
-    }) // end of on asteroid miner purchase
-
-
+            }
+        });
+    };
 
     //intervals and values for hovering and showing stats
     var BUYMENUITEMHOVERINTERVAL;
-    var varval;
-    var varamt;
-    var vartotal;
-    var varpercent;
-    var totalprod;
-    var description;
     $('.buymenuitem').on('mouseenter', function() {
-            BUYMENUITEMHOVERINTERVAL = setInterval(() => {
-                varamt = eval($(this).data("varamt"));
-                varprice = eval($(this).data("price"));
-                if (varamt >= 1 || $(this).hasClass("unlockedItem")){
-                    description = eval($(this).data("description"));
-                    varval = eval($(this).data('varval'));
-                    vartotal = eval($(this).data("vartotal"));
-                    varpercent = 100 * (vartotal / CreditsPerSecond);
-                    varpercent = varpercent.toFixed(1);
-                    totalprod = eval($(this).data("vartotalproduction"));
-                    if ($("#itemproducingamt").hasClass("hidestatstxt") != false ){
-                        $("#itemproducingamt").removeClass("hidestatstxt");
-                    }
-                    if ($("#itemproducingpercent").hasClass("hidestatstxt") != false ){
-                        $("#itemproducingpercent").removeClass("hidestatstxt");
-                    }
-                    if ($("#itemproducingtotal").hasClass("hidestatstxt") != false ){
-                        $("#itemproducingtotal").removeClass("hidestatstxt");
-                    }
-                    $("#itemdescription").html(`${description}`)
-                    $("#itemproducingamt").html(`Each ${$(this).data("name")} Produces ${formatNumber(varval)} ₵REDITS per second`);
-                    $("#itemproducingpercent").html(`${formatNumber(varamt)} ${$(this).data("name2")} producing ${formatNumber(vartotal)} ₵REDITS per second, which is ${varpercent}% of total ₵REDITS production`);
-                    $("#itemproducingtotal").html(`Total ₵REDITS produced by ${$(this).data("name2")}: ${formatNumber(totalprod)}`)
+        let itemid = $(this).attr('id')
+        var item;
+        for(let i = 0; i< gameObj.Items.length;i++){
+            let _item = gameObj.Items[i];
+            if (_item.Name==itemid){
+                item = gameObj.Items[i]
+            };
+        };
+
+        BUYMENUITEMHOVERINTERVAL = setInterval(() => {
+
+            if ( item.Amount >= 1 || $(this).hasClass("unlockedItem")){
+                if (!Number.isNaN(item.TotalCPS / gameObj.CreditsPerSecond)) {
+                    var percent = 100 * (item.TotalCPS / gameObj.CreditsPerSecond);
+                    percent = percent.toFixed(1);
                 } else {
-                    $("#itemdescription").html(`An unknown item, perhaps gaining more ₵REDITS will give new information`);
-                    if ($("#itemproducingamt").hasClass("hidestatstxt") != true ){
-                        $("#itemproducingamt").addClass("hidestatstxt")
-                    }
-                    if ($("#itemproducingpercent").hasClass("hidestatstxt") != true ){
-                        $("#itemproducingpercent").addClass("hidestatstxt")
-                    }
-                    if ($("#itemproducingtotal").hasClass("hidestatstxt") != true ){
-                        $("#itemproducingtotal").addClass("hidestatstxt")
-                    }
+                    var percent = 0.0;
+                    // handle the case where the division result is NaN
                 }
+                if ($("#itemproducingamt").hasClass("hidestatstxt") != false ){
+                    $("#itemproducingamt").removeClass("hidestatstxt");
+                }
+                if ($("#itemproducingpercent").hasClass("hidestatstxt") != false ){
+                    $("#itemproducingpercent").removeClass("hidestatstxt");
+                }
+                if ($("#itemproducingtotal").hasClass("hidestatstxt") != false ){
+                    $("#itemproducingtotal").removeClass("hidestatstxt");
+                    }
+                $("#itemdescription").html(`${item.Description}`)
+                $("#itemproducingamt").html(`Each ${item.SingularName} Produces ${formatNumber(item.CPS)} ₵REDITS per second`);
+                $("#itemproducingpercent").html(`${formatNumber(item.Amount)} ${item.MultipleName} producing ${formatNumber(item.TotalCPS)} ₵REDITS per second, which is ${percent}% of total ₵REDITS production`);
+                $("#itemproducingtotal").html(`Total ₵REDITS produced by ${item.MultipleName}: ${formatNumber(item.TotalCreditsProduced)}`)
+            } else {
+                $("#itemdescription").html(`An unknown item, perhaps gaining more ₵REDITS will give new information`);
+                if ($("#itemproducingamt").hasClass("hidestatstxt") != true ){
+                    $("#itemproducingamt").addClass("hidestatstxt")
+                }
+                if ($("#itemproducingpercent").hasClass("hidestatstxt") != true ){
+                    $("#itemproducingpercent").addClass("hidestatstxt")
+                }
+                if ($("#itemproducingtotal").hasClass("hidestatstxt") != true ){
+                    $("#itemproducingtotal").addClass("hidestatstxt")
+                }
+            }
         }, 100);
         $('.stats').css('display', 'block');
-      });
+    });
       
     $('.buymenuitem').on("mousemove",function(event){
         var yPos = event.pageY;
@@ -628,7 +515,7 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
     $('.buymenuitem').on('mouseleave', function() {
         $(".stats").css("display","none");
         clearInterval(BUYMENUITEMHOVERINTERVAL);
-      });
+    });
       
 }
 
