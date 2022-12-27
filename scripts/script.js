@@ -565,7 +565,7 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
         var yPos = event.pageY;
         yPos -= 175
         if((screen.height - yPos) < 650){
-            yPos -= 300
+            yPos -= 275
         }
         $('.stats').css("top",yPos + "px");
     })
