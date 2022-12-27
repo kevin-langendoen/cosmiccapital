@@ -46,17 +46,28 @@ var gameObj = {
         item.TotalCPS = item.Amount * (item.CPS * item.CPSMult) * this.globalProductionModifier;
     },
 
-    createItem: function(name,description,cps,price,pricemult, singularname,multiplename){
+    _itemID: 0,
+    _itemPrice:10,
+    _itemCPS: 0.25,
+    _itemPriceMult: 1.151,
+
+    createItem: function(name,description,singularname,multiplename){
+        if(this._itemID != 0){
+            let mult = getRandomInt(5,20)
+            this._itemPrice *= mult;
+            this._itemCPS *=mult;
+            this._itemPriceMult = getRandomFloat(1.14,1.18);
+        }
         const item = {
             "Name": name,
             "Description": description, //description of said item
             "TotalCreditsProduced": 0, //total amount of credits produced by said item
             "Amount": 0, //amount of said item
-            "CPS": cps, //credits per second per item
-            "Price": price, //price of item
+            "CPS": this._itemCPS, //credits per second per item
+            "Price": this._itemPrice, //price of item
             "TotalCPS": 0, // total credits per second combined (amount * cps)
             "CPSMult": 1, // if 1, produces 100% of item CPS
-            "PriceMult": pricemult, // amount to increase price of item after each purchase
+            "PriceMult": this._itemPriceMult, // amount to increase price of item after each purchase
             "PriceReduction": 1, //if 1 user pays 100% of item value
             "TotalCostMultiplied": 0, //price multiplied by purchaseAmount variable
             "SingularName": singularname,
@@ -67,6 +78,7 @@ var gameObj = {
         this.updateTotalCost(item);
 
         this.Items.push(item);
+        this._itemID += 1;
     },
 
 };
@@ -74,12 +86,14 @@ var gameObj = {
 //localStorage.clear(); //gamesave clearing for development purposes
 
 var itemsToCreate = [
-    function(){gameObj.createItem("cosmicclicks","Cosmic Clicks allow you to tap into the power of the cosmos to increase ₵REDITS production",0.25,10,1.151,"Cosmic Click", "Cosmic Clicks");},
-    function(){gameObj.createItem("cosmicovens","Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster",1,100,1.151,"Cosmic Oven", "Cosmic Ovens");},
-    function(){gameObj.createItem("interstellarmixers","A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation",10,1250,1.151,"Interstellar Mixer", "Interstellar Mixers");},
-    function(){gameObj.createItem("cosmicconveyorbelts","A futuristic conveyor belt system that uses Warp Drive technology to transport ₵REDITS faster",100,4500,1.151,"Cosmic Conveyor Belt", "Cosmic Conveyor Belts");},
-    function(){gameObj.createItem("asteroidminers","An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production",500,16150,1.151,"Asteroid Miner", "Asteroid Miners");},
-    function(){gameObj.createItem("asteroidminers","An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production",500,16150,1.151,"Asteroid Miner", "Asteroid Miners");},
+    function(){gameObj.createItem("cosmicclicks","Cosmic Clicks allow you to tap into the power of the cosmos to increase ₵REDITS production","Cosmic Click", "Cosmic Clicks");},
+    function(){gameObj.createItem("cosmicovens","Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster","Cosmic Oven", "Cosmic Ovens");},
+    function(){gameObj.createItem("interstellarmixers","A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation","Interstellar Mixer", "Interstellar Mixers");},
+    function(){gameObj.createItem("cosmicconveyorbelts","A futuristic conveyor belt system that uses Warp Drive technology to transport ₵REDITS faster","Cosmic Conveyor Belt", "Cosmic Conveyor Belts");},
+    function(){gameObj.createItem("asteroidminers","An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production","Asteroid Miner", "Asteroid Miners");},
+    function(){gameObj.createItem("quantumsprinklers","A cutting-edge sprinkler system that uses quantum entanglement to evenly distribute ₵REDITS","Quantum Sprinkler", "Quantum Sprinklers");},
+    function(){gameObj.createItem("gravitywellgenerators","A powerful device that uses artificial gravity wells to accelerate ₵REDITS production","Gravity Well Generator", "Gravity Well Generators");},
+    function(){gameObj.createItem("plasmareactors","A highly efficient energy source that uses plasma reactions to power ₵REDITS production","Plasma Reactor", "Plasma Reactors");},
 ] 
 
 $(document).ready(function(){
@@ -89,13 +103,44 @@ $(document).ready(function(){
     document.getElementById("spaceshipwrap").style.left = `calc(63% - ${buymenuwrapWidth}px)`;
 
     if(loadSaveData() != true){ // create game items if no game save exists using default values;
-        for (let i = 0; i < itemsToCreate.length; i++) {
+        for (let i = 0; i < itemsToCreate.length; i++) { //create buyitems
             itemsToCreate[i]();
         }
-        console.log("===STARTED GAME ASSUMING PLAYER HAD NO PREVIOUS SAVE===")
-        addItemsToBuyMenu();
+        if(localStorage.getItem("gameSave") != null || localStorage.getItem("gameSave") != undefined){
+            gameSave = JSON.parse(localStorage.getItem("gameSave"));
+            console.log("=== WELCOME BACK PARADOX, YOUR SAVE WAS SAVED :D ===");
+
+            gameObj.Credits = gameSave.credits;
+            gameObj.CreditsPerSecond = gameSave.creditspersecond;
+            gameObj.ClickValue = gameSave.clickvalue;
+
+            gameObj.Items[0].Amount = gameSave.cosmicclicks;
+            gameObj.Items[0].Price = gameSave.cosmicclicksprice;
+            gameObj.Items[0].TotalCreditsProduced = gameSave.cosmicclickscredsproduced;
+            gameObj.Items[1].Amount = gameSave.cosmicovens;
+            gameObj.Items[1].Price = gameSave.cosmicovensprice;
+            gameObj.Items[1].TotalCreditsProduced = gameSave.cosmicovenscredsproduced;
+            gameObj.Items[2].Price = gameSave.interstellarmixersprice;
+            gameObj.Items[2].Amount = gameSave.interstellarmixers;
+            gameObj.Items[2].TotalCreditsProduced = gameSave.interstellarmixerscredsproduced;
+            gameObj.Items[3].Price = gameSave.cosmicconveyorbeltsprice;
+            gameObj.Items[3].Amount = gameSave.cosmicconveyorbelts;
+            gameObj.Items[3].TotalCreditsProduced = gameSave.cosmicconveyorbeltscredsproduced;
+            gameObj.Items[4].Price = gameSave.asteroidminersprice;
+            gameObj.Items[4].Amount = gameSave.asteroidminers;
+            gameObj.Items[4].TotalCreditsProduced = gameSave.asteroidminerscredsproduced;
+
+            gameObj.Items.forEach(function(item){
+                gameObj.updateTotalCost(item);
+                gameObj.updateTotalCPS(item);
+            })
+            addItemsToBuyMenu();
+        } else{ //player had no old save
+            console.log("=== STARTED GAME ASSUMING PLAYER HAD NO PREVIOUS SAVE ===")
+            addItemsToBuyMenu();
+        }
     } else{ //succesfully loaded
-        console.log("===LOADED GAME SAVE!===")
+        console.log("=== LOADED GAME SAVE! ===")
         addItemsToBuyMenu();
     }
 
@@ -110,6 +155,7 @@ $(document).ready(function(){
 
     clicksFunctions(); //initializes hover effects and onclick functions
     startLoops();
+    console.log("=== CHEATING IS NOT FUN, WHAT FUN IS THERE LEFT IF ALL IS ALREADY DONE? ===")
 
 }); //end doc onready
 
@@ -118,23 +164,30 @@ function loadSaveData(){
         gameObj = JSON.parse(localStorage.getItem("gameObj"))
         return true
     }else{
-        console.log("===ERROR DURING LOADING OF SAVE GAME DATA.===");
-        //check for users old save
-        if(localStorage.getItem("gameSave") != null || localStorage.getItem("gameSave") != undefined){
-            gameSave = JSON.parse(localStorage.getItem("gameSave"));
-            console.log("===WELCOME BACK PARADOX :D")
-        }
+        console.log("=== ERROR DURING LOADING OF SAVE GAME DATA, YOUR BROWSER MAY HAVE CLEARED LOCALSTORAGE OR YOU DID NOT HAVE A SAVE! ===");
         return false
     }
 }
 
 function saveGameData(){
-    localStorage.setItem("gameObj",JSON.stringify(gameObj));
+    const json = JSON.stringify(gameObj, (key, value) => {
+        if (typeof value === "function") {
+          return value.toString();
+        }
+        return value;
+      });
+    localStorage.setItem("gameObj",json);
 };
 
 function addItemsToBuyMenu() { 
     if (gameObj.Items.length < itemsToCreate.length){
-        console.log("===OLD SAVE DETECTED==");
+        console.log("=== OLD SAVE DETECTED, ADDING NEW ITEMS! ==");
+        if (gameObj.Items.length == 8){
+            console.log("VERSION 1.2.5")
+        }
+        console.log(gameObj.Items.length)
+        console.log(itemsToCreate.length)
+
     }
     for(let i = 0; i< gameObj.Items.length;i++){
         let item = gameObj.Items[i];
@@ -420,6 +473,7 @@ function spaceShipClickEffect(item,event){
 }
 
 function clicksFunctions(){ //initializes most of the onclicks and hovers
+
     $('#spaceship').click(function(ev){ //click on spaceship
         spaceShipClickEffect(this,ev);
 
@@ -509,7 +563,10 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
       
     $('.buymenuitem').on("mousemove",function(event){
         var yPos = event.pageY;
-        yPos -= 154
+        yPos -= 175
+        if((screen.height - yPos) < 650){
+            yPos -= 300
+        }
         $('.stats').css("top",yPos + "px");
     })
 
@@ -519,6 +576,10 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
     });
       
 }
+
+function getRandomFloat(min, max) {
+    return Math.random() * (Math.max(min, max) - Math.min(min, max)) + Math.min(min, max);
+  }
 
 function getRandomInt(min, max) { //gets random integer
     min = Math.ceil(min);

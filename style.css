@@ -152,7 +152,7 @@
   width:85% ;
 }
 #buymenuwrap {
-  overflow-y:scroll;
+  overflow-y:auto;
   position: absolute;
   right: 0;
   top: calc(100px + 4px); /* top edge of buymenuwrap is 4px below the bottom edge of navbar*/
@@ -367,9 +367,8 @@
   user-select:none;
   font-size:150%;
 }
-
-
-
+/*background stars animation*/
+/*background stars animation*/
 /*background stars animation*/
 .stars > div {
   overflow: hidden;
@@ -403,7 +402,8 @@
   animation: stars 30s infinite linear;
 }
 /* animation */
-
+/* animation */
+/* animation */
 @keyframes border-top {
   0% {
     border-top-color: rgba(92, 4, 150, 0.75);
@@ -439,7 +439,6 @@
     border-bottom-color: rgba(92, 4, 150, 0.75);
   }
 }
-
 
 @keyframes gradient {
   0% {
