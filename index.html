@@ -39,7 +39,7 @@
             <div class="navbardivider"></div>
             <p class="navbartxt">Wormhole Tokens:<var id="wormholetokens" class="navbarvartxt">0</var></p>
             <div class="navbardivider"></div>
-            <p class="navbartxt">Cosmic Capital Version <var class="navbarvartxt">1.0.0</var></p>
+            <p class="navbartxt">Cosmic Capital Version <var class="navbarvartxt">1.2.5</var></p>
             <div class="navbardivider"></div>
         </div>
         <div></div>
@@ -48,10 +48,10 @@
             <img draggable="false" id="spaceship" src="./img/Main-Ship/mainshipbasefullhp2.png">
         </div>
         <div class="stats">
-            <p class="statstxt" id="itemdescription">Cosmic Clicks are great!</p>
-            <p class="statstxt2" id="itemproducingamt">Each Cosmic Click Produces <var id="cccreditsval" class="buymenuvartxt">0.25</var> ₵REDITS per second</p>
-            <p class="statstxt2" id="itemproducingpercent"><var class="buymenuvartxt cosmicclicksamt">0</var> Cosmic Clicks producing <var id="cccreditstotal" class="buymenuvartxt">0</var> ₵REDITS per second, which is <var id="ccpercentoftotal"  class="buymenuvartxt"></var>% of total ₵REDITS production</p>
-            <p class="statstxt2" id="itemproducingtotal">Total ₵REDITS produced by Cosmic Clicks: <var id="cccredstotalproduced" class="buymenuvartxt">0</var></p>
+            <p class="statstxt" id="itemdescription">Cosmic Capital is great!</p>
+            <p class="statstxt2" id="itemproducingamt">Each Random item produces an insane amount of ₵REDITS per second</p>
+            <p class="statstxt2" id="itemproducingpercent">somehow its 100000%</p>
+            <p class="statstxt2" id="itemproducingtotal">a very large amount of total credits produced!</p>
           </div>
         <div id="buymenuwrap">
             <div class="purchaseAmount">
@@ -61,44 +61,6 @@
                 <button class="purchaseAmountBtn txt" data-id="10">10</button>
                 <button class="purchaseAmountBtn txt" data-id="50">50</button>
                 <button class="purchaseAmountBtn txt" data-id="100">100</button>
-            </div>
-            <div class="buymenuitem unlockedItem" data-name="Cosmic Click" data-name2="Cosmic Clicks" data-varval="CosmicClicksValue" data-varamt="CosmicClicks" data-vartotal="CosmicClicksTotal" data-vartotalproduction="CosmicClicksCredsProduced" data-description="CosmicClicksDescription" data-price="CosmicClicksTotalCostMultiplied" data-pricemult="CosmicClicksPriceMult">
-                <div class="buymenuiconwrap cosmicclicksimgwrap ">
-                    <img draggable="false" id="CosmicClicksTotalCostMultiplied" src="./img/items/CosmicClick.png" class="buymenuimg cosmicclicks">
-                </div>
-                <p class="buymenutxt">Cosmic Clicks: <var class="buymenuvartxt cosmicclicksamt">0</var></p>
-                <p class="buymenutxt2">Cost: <var id="cosmicclicksprice" class="buymenuvartxt">10</var> ₵REDITS</p>
-            </div> <!-- end of cosmic clicks-->
-            <div class="buymenuitem hidebuymenuitem" id="buymenu2" data-name="Cosmic Oven" data-name2="Cosmic Ovens" data-varval="CosmicOvensValue" data-varamt="CosmicOvens" data-vartotal="CosmicOvensTotal" data-vartotalproduction="CosmicOvensCredsProduced" data-description="CosmicOvensDescription" data-price="CosmicOvensTotalCostMultiplied" data-pricemult="CosmicOvensPriceMult">
-                <div class="buymenuiconwrap cosmicovensimgwrap ">
-                    <img draggable="false" id="CosmicOvensTotalCostMultiplied" src="./img/items/CosmicOven.png" class="buymenuimg cosmicovens">
-                </div>
-                <p class="buymenutxt"></var></p>
-                <p class="buymenutxt2"></p>
-            </div><!-- end of cosmic oven-->
-            <div class="buymenuitem hidebuymenuitem" id="buymenu3" data-name="Interstellar Mixer" data-name2="Interstellar Mixers" data-varval="InterstellarMixersValue" data-varamt="InterstellarMixers" data-vartotal="InterstellarMixersTotal" data-vartotalproduction="InterstellarMixersCredsProduced" data-description="InterstellarMixersDescription" data-price="InterstellarMixersTotalCostMultiplied" data-pricemult="InterstellarMixersPriceMult">
-                <div class="buymenuiconwrap interstellarmixersimgwrap ">
-                    <img draggable="false" id="InterstellarMixersTotalCostMultiplied" src="./img/items/interstellarMixer.png" class="buymenuimg interstellarmixer">
-                </div>
-                <p class="buymenutxt"></p>
-                <p class="buymenutxt2"></p>
-            </div> <!--end of interstellar mixer-->
-            <div class="buymenuitem hidebuymenuitem" id="buymenu4" data-name="Cosmic Conveyorbelt" data-name2="Cosmic Conveyorbelts" data-varval="CosmicConveyorBeltsValue" data-varamt="CosmicConveyorBelts" data-vartotal="CosmicConveyorBeltsTotal" data-vartotalproduction="CosmicConveyorBeltsCredsProduced" data-description="CosmicConveyorBeltsDescription" data-price="CosmicConveyorBeltsTotalCostMultiplied" data-pricemult="CosmicConveyorBeltsPriceMult">
-                <div class="buymenuiconwrap cosmicconveyorbeltsimgwrap ">
-                    <img draggable="false" id="CosmicConveyorBelts" src="./img/items/CosmicConveyorBelt.png" class="buymenuimg cosmicconveyorbelt">
-                </div>
-                <p class="buymenutxt"></p>
-                <p class="buymenutxt2"></p>
-            </div> <!--end Cosmic Conveyor Belt-->
-            <div class="buymenuitem hidebuymenuitem" id="buymenu5" data-name="Asteroid Miner" data-name2="Asteroid Miners" data-varval="AsteroidMinersValue" data-varamt="AsteroidMiners" data-vartotal="AsteroidMinersTotal" data-vartotalproduction="AsteroidMinersCredsProduced" data-description="AsteroidMinersDescription" data-price="AsteroidMinersTotalCostMultiplied" data-pricemult="AsteroidMinersPriceMult">
-                <div class="buymenuiconwrap asteroidminersimgwrap ">
-                    <img draggable="false" id="AsteroidMinersTotalCostMultiplied" src="./img/items/asteroidMiner.png" class="buymenuimg asteroidminer">
-                </div>
-                <p class="buymenutxt"></p>
-                <p class="buymenutxt2"></p>
-            </div> <!--end asteroidminer-->
-            <div class="buymenuitem">
-
             </div>
         </div>
     </body>
