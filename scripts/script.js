@@ -6,7 +6,7 @@ var gameSave = null;
 var purchaseAmount = 1;
 
 var gameObj = {
-    Credits:250,
+    Credits:0,
 
     CreditsPerSecond: 0, //total credits per second
 
