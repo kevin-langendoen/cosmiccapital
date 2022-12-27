@@ -6,7 +6,7 @@ var gameSave = null;
 var purchaseAmount = 1;
 
 var gameObj = {
-    Credits:0,
+    Credits:250,
 
     CreditsPerSecond: 0, //total credits per second
 
@@ -18,82 +18,24 @@ var gameObj = {
 
     Items:[],
 
-    updatePrice: function(item){
-        let price = item['Price'];
-        for (let i=0;i < purchaseAmount;i++){
-            price *= item["PriceMult"];
-            price *= item['PriceReduction'];
-            price *= this.totalCostReduction
-        };
-        item['Price'] = Math.round(price);
-        return price;
-    },
-
-    updateTotalCost: function(item){
-        let totalCost = 0;
-        let price = item['Price'];
-        for(let i=0;i<purchaseAmount;i++){
-            totalCost += price;
-            price *= item['PriceMult'];
-            price *= item['PriceReduction']
-            price *= this.totalCostReduction;
-        }
-        //item['Price'] = Math.round(item['Price'])
-        item['TotalCostMultiplied'] = Math.round(totalCost);
-    },
-
-    updateTotalCPS: function(item){
-        item.TotalCPS = item.Amount * (item.CPS * item.CPSMult) * this.globalProductionModifier;
-    },
-
     _itemID: 0,
     _itemPrice:10,
     _itemCPS: 0.25,
     _itemPriceMult: 1.151,
-
-    createItem: function(name,description,singularname,multiplename){
-        if(this._itemID != 0){
-            let mult = getRandomInt(5,20)
-            this._itemPrice *= mult;
-            this._itemCPS *=mult;
-            this._itemPriceMult = getRandomFloat(1.14,1.18);
-        }
-        const item = {
-            "Name": name,
-            "Description": description, //description of said item
-            "TotalCreditsProduced": 0, //total amount of credits produced by said item
-            "Amount": 0, //amount of said item
-            "CPS": this._itemCPS, //credits per second per item
-            "Price": this._itemPrice, //price of item
-            "TotalCPS": 0, // total credits per second combined (amount * cps)
-            "CPSMult": 1, // if 1, produces 100% of item CPS
-            "PriceMult": this._itemPriceMult, // amount to increase price of item after each purchase
-            "PriceReduction": 1, //if 1 user pays 100% of item value
-            "TotalCostMultiplied": 0, //price multiplied by purchaseAmount variable
-            "SingularName": singularname,
-            "MultipleName": multiplename,
-        }
-        this.updateTotalCPS(item);
-
-        this.updateTotalCost(item);
-
-        this.Items.push(item);
-        this._itemID += 1;
-    },
 
 };
 
 //localStorage.clear(); //gamesave clearing for development purposes
 
 var itemsToCreate = [
-    function(){gameObj.createItem("cosmicclicks","Cosmic Clicks allow you to tap into the power of the cosmos to increase ₵REDITS production","Cosmic Click", "Cosmic Clicks");},
-    function(){gameObj.createItem("cosmicovens","Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster","Cosmic Oven", "Cosmic Ovens");},
-    function(){gameObj.createItem("interstellarmixers","A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation","Interstellar Mixer", "Interstellar Mixers");},
-    function(){gameObj.createItem("cosmicconveyorbelts","A futuristic conveyor belt system that uses Warp Drive technology to transport ₵REDITS faster","Cosmic Conveyor Belt", "Cosmic Conveyor Belts");},
-    function(){gameObj.createItem("asteroidminers","An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production","Asteroid Miner", "Asteroid Miners");},
-    function(){gameObj.createItem("quantumsprinklers","A cutting-edge sprinkler system that uses quantum entanglement to evenly distribute ₵REDITS","Quantum Sprinkler", "Quantum Sprinklers");},
-    function(){gameObj.createItem("gravitywellgenerators","A powerful device that uses artificial gravity wells to accelerate ₵REDITS production","Gravity Well Generator", "Gravity Well Generators");},
-    function(){gameObj.createItem("plasmareactors","A highly efficient energy source that uses plasma reactions to power ₵REDITS production","Plasma Reactor", "Plasma Reactors");},
+    function(){createItem("cosmicclicks","Cosmic Clicks allow you to tap into the power of the cosmos to increase ₵REDITS production","Cosmic Click", "Cosmic Clicks");},
+    function(){createItem("cosmicovens","Cosmic Ovens are advanced baking devices that use cosmic energy to cook ₵REDITS faster","Cosmic Oven", "Cosmic Ovens");},
+    function(){createItem("interstellarmixers","A high-tech mixing machine that uses advanced algorithms to optimize ₵REDITS creation","Interstellar Mixer", "Interstellar Mixers");},
+    function(){createItem("cosmicconveyorbelts","A futuristic conveyor belt system that uses Warp Drive technology to transport ₵REDITS faster","Cosmic Conveyor Belt", "Cosmic Conveyor Belts");},
+    function(){createItem("asteroidminers","An automated mining machine that extracts valuable resources from asteroids to be used in ₵REDITS production","Asteroid Miner", "Asteroid Miners");},
+    function(){createItem("quantumsprinklers","A cutting-edge sprinkler system that uses quantum entanglement to evenly distribute ₵REDITS","Quantum Sprinkler", "Quantum Sprinklers");},
+    function(){createItem("gravitywellgenerators","A powerful device that uses artificial gravity wells to accelerate ₵REDITS production","Gravity Well Generator", "Gravity Well Generators");},
+    function(){createItem("plasmareactors","A highly efficient energy source that uses plasma reactions to power ₵REDITS production","Plasma Reactor", "Plasma Reactors");},
 ] 
 
 $(document).ready(function(){
@@ -131,8 +73,8 @@ $(document).ready(function(){
             gameObj.Items[4].TotalCreditsProduced = gameSave.asteroidminerscredsproduced;
 
             gameObj.Items.forEach(function(item){
-                gameObj.updateTotalCost(item);
-                gameObj.updateTotalCPS(item);
+                updateTotalCost(item);
+                updateTotalCPS(item);
             })
             addItemsToBuyMenu();
         } else{ //player had no old save
@@ -162,6 +104,10 @@ $(document).ready(function(){
 function loadSaveData(){
     if(localStorage.getItem("gameObj") != null || localStorage.getItem("gameObj") != undefined){
         gameObj = JSON.parse(localStorage.getItem("gameObj"))
+        gameObj.Items.forEach(function(item){
+            updateTotalCost(item);
+            updateTotalCPS(item);
+        });
         return true
     }else{
         console.log("=== ERROR DURING LOADING OF SAVE GAME DATA, YOUR BROWSER MAY HAVE CLEARED LOCALSTORAGE OR YOU DID NOT HAVE A SAVE! ===");
@@ -233,6 +179,64 @@ function addItemsToBuyMenu() {
         $("#buymenuwrap").append(buymenuitemdiv);
     }
 };
+
+function createItem(name,description,singularname,multiplename){
+    if(gameObj._itemID != 0){
+        let mult = getRandomInt(5,20)
+        gameObj._itemPrice *= mult;
+        gameObj._itemCPS *=mult;
+        gameObj._itemPriceMult = getRandomFloat(1.14,1.18);
+    }
+    const item = {
+        "Name": name,
+        "Description": description, //description of said item
+        "TotalCreditsProduced": 0, //total amount of credits produced by said item
+        "Amount": 0, //amount of said item
+        "CPS": gameObj._itemCPS, //credits per second per item
+        "Price": gameObj._itemPrice, //price of item
+        "TotalCPS": 0, // total credits per second combined (amount * cps)
+        "CPSMult": 1, // if 1, produces 100% of item CPS
+        "PriceMult": gameObj._itemPriceMult, // amount to increase price of item after each purchase
+        "PriceReduction": 1, //if 1 user pays 100% of item value
+        "TotalCostMultiplied": 0, //price multiplied by purchaseAmount variable
+        "SingularName": singularname,
+        "MultipleName": multiplename,
+    }
+    updateTotalCPS(item);
+
+    updateTotalCost(item);
+
+    gameObj.Items.push(item);
+    gameObj._itemID += 1;
+}
+
+function updateTotalCPS(item){
+    item.TotalCPS = item.Amount * (item.CPS * item.CPSMult) * gameObj.globalProductionModifier;
+}
+
+function updateTotalCost(item){
+    let totalCost = 0;
+    let price = item['Price'];
+    for(let i=0;i<purchaseAmount;i++){
+        totalCost += price;
+        price *= item['PriceMult'];
+        price *= item['PriceReduction']
+        price *= gameObj.totalCostReduction;
+    }
+    //item['Price'] = Math.round(item['Price'])
+    item['TotalCostMultiplied'] = Math.round(totalCost);
+}
+
+function updatePrice(item){
+    let price = item['Price'];
+    for (let i=0;i < purchaseAmount;i++){
+        price *= item["PriceMult"];
+        price *= item['PriceReduction'];
+        price *= gameObj.totalCostReduction
+    };
+    item['Price'] = Math.round(price);
+    return price;
+}
 
 function updateCredsDisplay(){ //updates text
     $("#credits").html(formatNumber(gameObj.Credits));
@@ -344,7 +348,7 @@ function highlightPurchaseAmount(btn){
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 1;
             gameObj.Items.forEach(function(item){
-                gameObj.updateTotalCost(item);
+                updateTotalCost(item);
                 if($(`#${item.Name}`).hasClass("unlockedItem")){
                     $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
                 };
@@ -354,7 +358,7 @@ function highlightPurchaseAmount(btn){
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 5;
             gameObj.Items.forEach(function(item){
-                gameObj.updateTotalCost(item);
+                updateTotalCost(item);
                 if($(`#${item.Name}`).hasClass("unlockedItem")){
                     $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
                 };
@@ -364,7 +368,7 @@ function highlightPurchaseAmount(btn){
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 10;
             gameObj.Items.forEach(function(item){
-                gameObj.updateTotalCost(item);
+                updateTotalCost(item);
                 if($(`#${item.Name}`).hasClass("unlockedItem")){
                     $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
                 };
@@ -374,7 +378,7 @@ function highlightPurchaseAmount(btn){
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 50;
             gameObj.Items.forEach(function(item){
-                gameObj.updateTotalCost(item);
+                updateTotalCost(item);
                 if($(`#${item.Name}`).hasClass("unlockedItem")){
                     $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
                 };
@@ -384,7 +388,7 @@ function highlightPurchaseAmount(btn){
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 100;
             gameObj.Items.forEach(function(item){
-                gameObj.updateTotalCost(item);
+                updateTotalCost(item);
                 if($(`#${item.Name}`).hasClass("unlockedItem")){
                     $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
                 };
@@ -394,7 +398,7 @@ function highlightPurchaseAmount(btn){
             $(btn).addClass("purchaseAmountSelected");
             purchaseAmount = 1;
             gameObj.Items.forEach(function(item){
-                gameObj.updateTotalCost(item);
+                updateTotalCost(item);
                 if($(`#${item.Name}`).hasClass("unlockedItem")){
                     $(`#${item.Name}`).find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
                 };
@@ -497,9 +501,9 @@ function clicksFunctions(){ //initializes most of the onclicks and hovers
                 }, 500);
                 gameObj.Credits -= item.TotalCostMultiplied;
                 item.Amount += purchaseAmount;
-                gameObj.updateTotalCPS(item);
-                gameObj.updatePrice(item);
-                gameObj.updateTotalCost(item);
+                updateTotalCPS(item);
+                updatePrice(item);
+                updateTotalCost(item);
 
                 $(this).parent().find(".buymenutxt").html(`${item.MultipleName}: ${formatNumber(item.Amount)}`);
                 $(this).parent().find(".buymenutxt2").html(`Price: ${formatNumber(item.TotalCostMultiplied)} ₵REDITS`);
