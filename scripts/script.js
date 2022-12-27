@@ -82,7 +82,7 @@ $(document).ready(function(){
             addItemsToBuyMenu();
         }
     } else{ //succesfully loaded
-        console.log("=== LOADED GAME SAVE! ===")
+        console.log("=== SUCCESSFULLY LOADED GAME SAVE! ===")
         addItemsToBuyMenu();
     }
 
